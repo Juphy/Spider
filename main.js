@@ -1,6 +1,5 @@
 const WeiBo = require('./weibo'),
-    config = require('./config'),
-    schedule = require('node-schedule');
+    config = require('./config');
 
 let weibo = new WeiBo(config);
 const urls = ['https://img.onvshen.com:85/gallery/21021/25001/s/037.jpg', 'https://img.onvshen.com:85/gallery/21021/25001/s/036.jpg'];

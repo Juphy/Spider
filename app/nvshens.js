@@ -1,6 +1,6 @@
 let cheerio = require('cheerio'),
     request = require("request-promise"),
-    { URL_NVSHEN: URL } = require('./config');
+    { URL_NVSHEN: URL } = require('../config');
 
 console.log(URL);
 
