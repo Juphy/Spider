@@ -85,7 +85,7 @@ class WeiBo {
         await this.login();
         const rule = new schedule.RecurrenceRule();
         rule.hour = [8, 16, 23];
-        rule.minte = 0;
+        rule.minte = [0];
         this.TASK = schedule.scheduleJob(rule, async () => {
             await this.login();
         });
@@ -133,9 +133,9 @@ class WeiBo {
 
     async uploadImg(url) {
         let imgBuffer = await this.imgToBuffer(url);
-        let res1 = await this.sinaimg(imgBuffer.toString('base64'));
-        res1['url'] = url;
-        return res1;
+        let res = await this.sinaimg(imgBuffer.toString('base64'));
+        res['url'] = url;
+        return res;
     }
 
     async sinaimg(b64_data) {

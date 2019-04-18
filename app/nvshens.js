@@ -1,27 +1,191 @@
 let cheerio = require('cheerio'),
     request = require("request-promise"),
-    { URL_NVSHEN: URL } = require('../config');
+    { URL_GALLERY: GALLERY, URL_NVSHEN: NVSHEN } = require('../config');
 
-console.log(URL);
+let weibo = require("../main");
 
-let index = 1;
+const {
+    Image,
+    Album
+} = require("../lib/model");
+
+let index = 1; // 自增页数
 
 // 获取相册
 const getAlbum = async (url) => {
-    let data = {
-        url,
-        res: await request({
+    let data = await request({
+        url: url,
+        headers: {
+            "DNT": 1,
+            "Host": "www.nvshens.com",
+            "Referer": GALLERY,
+            "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit/ 537.36(KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36"
+        }
+    });
+    let $ = cheerio.load(data);
+    let albums = [];
+    $('#listdiv ul li').each((i, item) => {
+        let link = $(item).find('.galleryli_link').attr("href"),
+            title = $(item).find('.galleryli_link img').attr("alt"),
+            cover = $(item).find('.galleryli_link img').attr("data-original");
+        albums.push({
+            name: title,
+            album_url: link,
+            url: cover
+        })
+    });
+    return albums;
+}
+
+// 处理相册
+const handleAlbums = async (albums) => {
+    const datas = [];
+    // 以下方法强行同步，以便读表与写表
+    let i = 0;
+    while (i < albums.length) {
+        let item = albums[i];
+        let album = await Album.findOne({
+            where: {
+                name: item.name
+            }
+        });
+        if (!album) {
+            let result;
+            try {
+                result = await weibo.uploadImg(item.url);
+            } catch (e) {
+                console.log('cookie error', result)
+                weibo.TASK && weibo.TASK.cancel();
+                await weibo.loginto();
+                result = await weibo.uploadImg(item.url);
+            }
+            album = await Album.create({
+                name: item.name,
+                album_url: item.album_url,
+                url: item.url,
+                sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
+                width: result.width,
+                height: result.height,
+                create_time: new Date()
+            });
+            datas.push({
+                album_url: item.album_url,
+                album_id: album.id,
+                album_name: album.name
+            })
+        }
+        i++;
+    }
+    return datas;
+}
+
+// 获取分页图片合集
+const getPage = async (album_url) => {
+    let imgs = [], index = 1;
+    let fn = async (url) => {
+        let html = await request({
             url: url,
             headers: {
-                "DNT": 1,
-                "Host": "www.nvshens.com",
-                "User- Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit/ 537.36(KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36"
+                DNT: 1,
+                Host: "www.nvshens.com",
+                Pragma: "no-cache",
+                Referer: GALLERY,
+                "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
             }
-        })
+        });
+        let $ = cheerio.load(html);
+        if ($('#hgallery').html()) {
+            $("#hgallery").children().each(async (i, ele) => {
+                imgs.push({
+                    name: $(ele).attr('alt'),
+                    src: $(ele).attr("src")
+                })
+            });
+            index++;
+            await fn(NVSHEN + album_url + `/${index}.html`);
+        }
     };
-    return data;
+    await fn(NVSHEN + album_url);
+    return imgs;
+}
+
+const getImgs = async (datas) => {
+    datas.forEach(async item => {
+        let images = await getPage(item.album_url);
+
+        // 异步并发操作，之后引入async库控制并发数量
+        // images.forEach(async img => {
+        //     let image = await Image.findOne({
+        //         where: {
+        //             name: img.name
+        //         }
+        //     });
+        //     if (!image) {
+        //         let result;
+        //         try {
+        //             result = await weibo.uploadImg(img.src);
+        //         } catch (e) {
+        //             console.log('cookie error', result);
+        //             weibo.TASK && weibo.TASK.cancel();
+        //             await weibo.loginto();
+        //             result = await weibo.uploadImg(img.src);
+        //         }
+        //         await Image.create({
+        //             name: img.name,
+        //             album_id: item.album_id,
+        //             width: result.width,
+        //             height: result.height,
+        //             album_name: item.album_name,
+        //             sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
+        //             url: img.src,
+        //             create_time: new Date()
+        //         }).catch(err => {
+        //             console.log(err);
+        //         })
+        //     }
+        // })
+
+        // 同步非并发请求减缓爬虫速度，防屏蔽
+        let i = 0;
+        while (i < images.length) {
+            let img = images[i];
+            let image = await Image.findOne({
+                where: {
+                    name: img.name
+                }
+            });
+            if (!image) {
+                let result;
+                try {
+                    result = await weibo.uploadImg(img.src);
+                } catch (e) {
+                    console.log('cookie error', result);
+                    weibo.TASK && weibo.TASK.cancel();
+                    await weibo.loginto();
+                    result = await weibo.uploadImg(img.src);
+                }
+                await Image.create({
+                    name: img.name,
+                    album_id: item.album_id,
+                    width: result.width,
+                    height: result.height,
+                    album_name: item.album_name,
+                    sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
+                    url: img.src,
+                    create_time: new Date()
+                }).catch(err => {
+                    console.log(err);
+                })
+            }
+            i++;
+        }
+    })
 }
 
 const main = async (url) => {
-    const data = await getAlbum(url);
+    const albums = await getAlbum(url);
+    const datas = await handleAlbums(albums);
+    await getImgs(datas);
 }
+
+main(GALLERY);
