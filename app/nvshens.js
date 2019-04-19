@@ -1,4 +1,5 @@
 let cheerio = require('cheerio'),
+    schedule = require('node-schedule'),
     request = require("request-promise"),
     { URL_GALLERY: GALLERY, URL_NVSHEN: NVSHEN } = require('../config');
 
@@ -10,6 +11,7 @@ const {
 } = require("../lib/model");
 
 let index = 1; // 自增页数
+let number = 0; // 用于计数，超过20将不再爬取数据
 
 // 获取相册
 const getAlbum = async (url) => {
@@ -24,16 +26,18 @@ const getAlbum = async (url) => {
     });
     let $ = cheerio.load(data);
     let albums = [];
-    $('#listdiv ul li').each((i, item) => {
-        let link = $(item).find('.galleryli_link').attr("href"),
-            title = $(item).find('.galleryli_link img').attr("alt"),
-            cover = $(item).find('.galleryli_link img').attr("data-original");
-        albums.push({
-            name: title,
-            album_url: link,
-            url: cover
-        })
-    });
+    if ($('#listdiv ul').html()) {
+        $('#listdiv ul li').each((i, item) => {
+            let link = $(item).find('.galleryli_link').attr("href"),
+                title = $(item).find('.galleryli_link img').attr("alt"),
+                cover = $(item).find('.galleryli_link img').attr("data-original");
+            albums.push({
+                name: title,
+                album_url: link,
+                url: cover
+            })
+        });
+    }
     return albums;
 }
 
@@ -70,6 +74,13 @@ const handleAlbums = async (albums) => {
             });
             datas.push({
                 album_url: item.album_url,
+                album_id: album.id,
+                album_name: album.name
+            })
+        } else {
+            number++;
+            datas.push({
+                album_url: album.album_url,
                 album_id: album.id,
                 album_name: album.name
             })
@@ -110,42 +121,82 @@ const getPage = async (album_url) => {
 }
 
 const getImgs = async (datas) => {
-    datas.forEach(async item => {
+    // 用forEach循环，并发操作
+    // datas.forEach(async item => {
+    //     let images = await getPage(item.album_url);
+    //     // 异步并发操作，之后引入async库控制并发数量
+    //     // images.forEach(async img => {
+    //     //     let image = await Image.findOne({
+    //     //         where: {
+    //     //             name: img.name
+    //     //         }
+    //     //     });
+    //     //     if (!image) {
+    //     //         let result;
+    //     //         try {
+    //     //             result = await weibo.uploadImg(img.src);
+    //     //         } catch (e) {
+    //     //             console.log('cookie error', result);
+    //     //             weibo.TASK && weibo.TASK.cancel();
+    //     //             await weibo.loginto();
+    //     //             result = await weibo.uploadImg(img.src);
+    //     //         }
+    //     //         await Image.create({
+    //     //             name: img.name,
+    //     //             album_id: item.album_id,
+    //     //             width: result.width,
+    //     //             height: result.height,
+    //     //             album_name: item.album_name,
+    //     //             sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
+    //     //             url: img.src,
+    //     //             create_time: new Date()
+    //     //         }).catch(err => {
+    //     //             console.log(err);
+    //     //         })
+    //     //     }
+    //     // })
+
+    //     // 同步非并发请求减缓爬虫速度，防屏蔽
+    //     let i = 0;
+    //     while (i < images.length) {
+    //         let img = images[i];
+    //         let image = await Image.findOne({
+    //             where: {
+    //                 name: img.name
+    //             }
+    //         });
+    //         if (!image) {
+    //             let result;
+    //             try {
+    //                 result = await weibo.uploadImg(img.src);
+    //             } catch (e) {
+    //                 console.log('cookie error', result);
+    //                 weibo.TASK && weibo.TASK.cancel();
+    //                 await weibo.loginto();
+    //                 result = await weibo.uploadImg(img.src);
+    //             }
+    //             await Image.create({
+    //                 name: img.name,
+    //                 album_id: item.album_id,
+    //                 width: result.width,
+    //                 height: result.height,
+    //                 album_name: item.album_name,
+    //                 sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
+    //                 url: img.src,
+    //                 create_time: new Date()
+    //             }).catch(err => {
+    //                 console.log(err);
+    //             })
+    //         }
+    //         i++;
+    //     }
+    // })
+
+    // 同步操作
+    let n = 0;
+    while (n < datas.length) {
+        let item = datas[n];
         let images = await getPage(item.album_url);
-
-        // 异步并发操作，之后引入async库控制并发数量
-        // images.forEach(async img => {
-        //     let image = await Image.findOne({
-        //         where: {
-        //             name: img.name
-        //         }
-        //     });
-        //     if (!image) {
-        //         let result;
-        //         try {
-        //             result = await weibo.uploadImg(img.src);
-        //         } catch (e) {
-        //             console.log('cookie error', result);
-        //             weibo.TASK && weibo.TASK.cancel();
-        //             await weibo.loginto();
-        //             result = await weibo.uploadImg(img.src);
-        //         }
-        //         await Image.create({
-        //             name: img.name,
-        //             album_id: item.album_id,
-        //             width: result.width,
-        //             height: result.height,
-        //             album_name: item.album_name,
-        //             sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
-        //             url: img.src,
-        //             create_time: new Date()
-        //         }).catch(err => {
-        //             console.log(err);
-        //         })
-        //     }
-        // })
-
-        // 同步非并发请求减缓爬虫速度，防屏蔽
         let i = 0;
         while (i < images.length) {
             let img = images[i];
@@ -164,28 +215,42 @@ const getImgs = async (datas) => {
                     await weibo.loginto();
                     result = await weibo.uploadImg(img.src);
                 }
-                await Image.create({
-                    name: img.name,
-                    album_id: item.album_id,
-                    width: result.width,
-                    height: result.height,
-                    album_name: item.album_name,
-                    sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
-                    url: img.src,
-                    create_time: new Date()
-                }).catch(err => {
-                    console.log(err);
-                })
+                if (result.pid) {
+                    await Image.create({
+                        name: img.name,
+                        album_id: item.album_id,
+                        width: result.width,
+                        height: result.height,
+                        album_name: item.album_name,
+                        sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
+                        url: img.src,
+                        create_time: new Date()
+                    }).catch(err => {
+                        console.log(err);
+                    })
+                }
             }
             i++;
-        }
-    })
+        };
+        n++;
+    }
 }
 
 const main = async (url) => {
     const albums = await getAlbum(url);
-    const datas = await handleAlbums(albums);
-    await getImgs(datas);
+    if (albums.length && number <= 20) {
+        const datas = await handleAlbums(albums);
+        await getImgs(datas);
+        index++;
+        await main(`${GALLERY}${index}.html`)
+    }
 }
 
 main(GALLERY);
+
+const rule = new schedule.RecurrenceRule();
+rule.hour = [8, 16, 23];
+rule.minute = [0]
+schedule.scheduleJob(rule, async () => {
+    await main(GALLERY);
+})
