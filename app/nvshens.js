@@ -232,13 +232,17 @@ const getImgs = async (datas) => {
             }
             i++;
         };
+        await new Promise(async (resolve, reject) => {
+            setTimeout(resolve, 1000);
+        })
         n++;
     }
 }
 
 const main = async (url) => {
     const albums = await getAlbum(url);
-    if (albums.length && number <= 20) {
+    // if (albums.length && number <= 20) {
+    if (albums.length) {
         const datas = await handleAlbums(albums);
         await getImgs(datas);
         index++;
