@@ -1,7 +1,7 @@
 let cheerio = require('cheerio'),
     schedule = require('node-schedule'),
     request = require("request-promise"),
-    { URL_GALLERY: GALLERY, URL_NVSHEN: NVSHEN } = require('../config');
+    { URL_GALLERY: GALLERY, URL_NVSHEN: NVSHEN, COOKIE } = require('../config');
 
 let weibo = require("../main");
 
@@ -22,6 +22,8 @@ const getAlbum = async (url) => {
         $ = await request({
             url: url,
             headers: {
+                "Connection": "keep-alive",
+                "Cookie": COOKIE,
                 "DNT": 1,
                 "Host": "www.nvshens.com",
                 "Referer": GALLERY,
@@ -107,6 +109,8 @@ const getPage = async (album_url) => {
             $ = await request({
                 url: url,
                 headers: {
+                    "Connection": "keep-alive",
+                    'Cookie': COOKIE,
                     DNT: 1,
                     Host: "www.nvshens.com",
                     Pragma: "no-cache",
@@ -220,7 +224,7 @@ const getImgs = async (datas) => {
         let i = 0;
         while (i < images.length) {
             let img = images[i];
-            let image = await Picture.findOne({
+            let image = await Image.findOne({
                 where: {
                     name: img.name
                 }
@@ -236,7 +240,7 @@ const getImgs = async (datas) => {
                     result = await weibo.uploadImg(img.src);
                 }
                 if (result.pid) {
-                    await Picture.create({
+                    await Image.create({
                         name: img.name,
                         album_id: item.album_id,
                         width: result.width,
@@ -281,6 +285,8 @@ const getAllTags = async (url)=>{
         let $ = await request({
             url: url,
             headers: {
+                "Connection": "keep-alive",
+                "Cookie": COOKIE,
                 "DNT": 1,
                 "Host": "www.nvshens.com",
                 "Referer": GALLERY,
