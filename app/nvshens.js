@@ -15,16 +15,18 @@ let number = 0; // 用于计数，超过20将不再爬取数据
 
 // 获取相册
 const getAlbum = async (url) => {
-    let data = await request({
+    let $ = await request({
         url: url,
         headers: {
             "DNT": 1,
             "Host": "www.nvshens.com",
             "Referer": GALLERY,
             "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit/ 537.36(KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36"
+        },
+        transform: (body)=>{
+            return cheerio.load(body);
         }
     });
-    let $ = cheerio.load(data);
     let albums = [];
     if ($('#listdiv ul').html()) {
         $('#listdiv ul li').each((i, item) => {
@@ -94,7 +96,7 @@ const handleAlbums = async (albums) => {
 const getPage = async (album_url) => {
     let imgs = [], index = 1;
     let fn = async (url) => {
-        let html = await request({
+        let $ = await request({
             url: url,
             headers: {
                 DNT: 1,
@@ -102,14 +104,21 @@ const getPage = async (album_url) => {
                 Pragma: "no-cache",
                 Referer: GALLERY,
                 "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
+            },
+            transform: (body)=>{
+                return cheerio.load(body);
             }
         });
-        let $ = cheerio.load(html);
         if ($('#hgallery').html()) {
+            let tags=[];
+            $('#utag li a').each(async (i, ele)=>{
+                tags.push($(ele).text());
+            })
             $("#hgallery").children().each(async (i, ele) => {
                 imgs.push({
                     name: $(ele).attr('alt'),
-                    src: $(ele).attr("src")
+                    src: $(ele).attr("src"),
+                    tags: tags
                 })
             });
             index++;
@@ -224,11 +233,16 @@ const getImgs = async (datas) => {
                         album_name: item.album_name,
                         sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
                         url: img.src,
-                        create_time: new Date()
+                        create_time: new Date(),
+                        tags: img.tags
                     }).catch(err => {
                         console.log(err);
                     })
                 }
+            }else{
+                image.update({
+                    tags: img.tags
+                })
             }
             i++;
         };
@@ -239,22 +253,53 @@ const getImgs = async (datas) => {
     }
 }
 
-const main = async (url) => {
+const main = async (url, URL) => {
     const albums = await getAlbum(url);
     // if (albums.length && number <= 20) {
     if (albums.length) {
         const datas = await handleAlbums(albums);
         await getImgs(datas);
         index++;
-        await main(`${GALLERY}${index}.html`)
+        await main(`${URL}${index}.html`, URL);
     }
 }
 
-main(GALLERY);
+const getAllTags = async (url)=>{
+    let tags = [];
+    let $ = await request({
+        url: url,
+        headers: {
+            "DNT": 1,
+            "Host": "www.nvshens.com",
+            "Referer": GALLERY,
+            "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit/ 537.36(KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36"
+        },
+        transform: (body)=>{
+            return cheerio.load(body);
+        }
+    });
+    $('.tag_div ul li a').each(async (i, item)=>{
+        tags.push($(item).attr('href'));
+    });
+    return tags;
+}
+
+
+const init = async ()=>{
+    const tags = await getAllTags(GALLERY);
+    let i=0;
+    while(i < tags.length){
+        let url=NVSHEN + tags[0];
+        await main(url, url);
+        i++;
+    }
+}
+
+init();
 
 const rule = new schedule.RecurrenceRule();
 rule.hour = [8, 16, 23];
 rule.minute = [0]
 schedule.scheduleJob(rule, async () => {
-    await main(GALLERY);
+    await init();
 })
