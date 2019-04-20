@@ -7,7 +7,8 @@ let weibo = require("../main");
 
 const {
     Image,
-    Album
+    Album,
+    Picture
 } = require("../lib/model");
 
 let index = 1; // 自增页数
@@ -30,7 +31,7 @@ const getAlbum = async (url) => {
                 return cheerio.load(body);
             }
         });
-        if ($&&$('#listdiv ul').html()) {
+        if ($ && $('#listdiv ul').html()) {
             $('#listdiv ul li').each((i, item) => {
                 let link = $(item).find('.galleryli_link').attr("href"),
                     title = $(item).find('.galleryli_link img').attr("alt"),
@@ -85,12 +86,12 @@ const handleAlbums = async (albums) => {
                 album_name: album.name
             })
         } else {
-            number++;
-            datas.push({
-                album_url: album.album_url,
-                album_id: album.id,
-                album_name: album.name
-            })
+            // number++;
+            // datas.push({
+            //     album_url: album.album_url,
+            //     album_id: album.id,
+            //     album_name: album.name
+            // })
         }
         i++;
     }
@@ -116,7 +117,7 @@ const getPage = async (album_url) => {
                     return cheerio.load(body);
                 }
             });
-            if ($('#hgallery').html()) {
+            if ($ && $('#hgallery').html()) {
                 let tags=[];
                 $('#utag li a').each(async (i, ele)=>{
                     tags.push($(ele).text());
@@ -219,7 +220,7 @@ const getImgs = async (datas) => {
         let i = 0;
         while (i < images.length) {
             let img = images[i];
-            let image = await Image.findOne({
+            let image = await Picture.findOne({
                 where: {
                     name: img.name
                 }
@@ -235,7 +236,7 @@ const getImgs = async (datas) => {
                     result = await weibo.uploadImg(img.src);
                 }
                 if (result.pid) {
-                    await Image.create({
+                    await Picture.create({
                         name: img.name,
                         album_id: item.album_id,
                         width: result.width,
@@ -250,15 +251,15 @@ const getImgs = async (datas) => {
                     })
                 }
             }else{
-                image.update({
+                await image.update({
                     tags: img.tags
                 })
             }
             i++;
         };
-        await new Promise(async (resolve, reject) => {
-            setTimeout(resolve, 1000);
-        })
+        // await new Promise(async (resolve, reject) => {
+        //     setTimeout(resolve, 1000);
+        // })
         n++;
     }
 }
@@ -289,9 +290,11 @@ const getAllTags = async (url)=>{
                 return cheerio.load(body);
             }
         });
-        $('.tag_div ul li a').each(async (i, item)=>{
-            tags.push($(item).attr('href'));
-        });
+        if($ && $('.tag_div').html()){
+            $('.tag_div ul li a').each(async (i, item)=>{
+                tags.push($(item).attr('href'));
+            });
+        }
     }catch(e){
         console.log(e);
     }
