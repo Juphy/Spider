@@ -16,6 +16,7 @@ let number = 0; // 用于计数，超过20将不再爬取数据
 // 获取相册
 const getAlbum = async (url) => {
     let $;
+    let albums = [];
     try{
         $ = await request({
             url: url,
@@ -29,23 +30,20 @@ const getAlbum = async (url) => {
                 return cheerio.load(body);
             }
         });
-        
+        if ($&&$('#listdiv ul').html()) {
+            $('#listdiv ul li').each((i, item) => {
+                let link = $(item).find('.galleryli_link').attr("href"),
+                    title = $(item).find('.galleryli_link img').attr("alt"),
+                    cover = $(item).find('.galleryli_link img').attr("data-original");
+                albums.push({
+                    name: title,
+                    album_url: link,
+                    url: cover
+                })
+            });
+        }   
     }catch(e){
         console.log(e);
-        return [];
-    }
-    let albums = [];
-    if ($('#listdiv ul').html()) {
-        $('#listdiv ul li').each((i, item) => {
-            let link = $(item).find('.galleryli_link').attr("href"),
-                title = $(item).find('.galleryli_link img').attr("alt"),
-                cover = $(item).find('.galleryli_link img').attr("data-original");
-            albums.push({
-                name: title,
-                album_url: link,
-                url: cover
-            })
-        });
     }
     return albums;
 }
@@ -118,23 +116,23 @@ const getPage = async (album_url) => {
                     return cheerio.load(body);
                 }
             });
+            if ($('#hgallery').html()) {
+                let tags=[];
+                $('#utag li a').each(async (i, ele)=>{
+                    tags.push($(ele).text());
+                })
+                $("#hgallery").children().each(async (i, ele) => {
+                    imgs.push({
+                        name: $(ele).attr('alt'),
+                        src: $(ele).attr("src"),
+                        tags: tags
+                    })
+                });
+                index++;
+                await fn(NVSHEN + album_url + `/${index}.html`);
+            }
         }catch(e){
             console.log(e);
-        }
-        if ($('#hgallery').html()) {
-            let tags=[];
-            $('#utag li a').each(async (i, ele)=>{
-                tags.push($(ele).text());
-            })
-            $("#hgallery").children().each(async (i, ele) => {
-                imgs.push({
-                    name: $(ele).attr('alt'),
-                    src: $(ele).attr("src"),
-                    tags: tags
-                })
-            });
-            index++;
-            await fn(NVSHEN + album_url + `/${index}.html`);
         }
     };
     await fn(NVSHEN + album_url);
@@ -278,21 +276,26 @@ const main = async (url, URL) => {
 
 const getAllTags = async (url)=>{
     let tags = [];
-    let $ = await request({
-        url: url,
-        headers: {
-            "DNT": 1,
-            "Host": "www.nvshens.com",
-            "Referer": GALLERY,
-            "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit/ 537.36(KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36"
-        },
-        transform: (body)=>{
-            return cheerio.load(body);
-        }
-    });
-    $('.tag_div ul li a').each(async (i, item)=>{
-        tags.push($(item).attr('href'));
-    });
+    try{
+        let $ = await request({
+            url: url,
+            headers: {
+                "DNT": 1,
+                "Host": "www.nvshens.com",
+                "Referer": GALLERY,
+                "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit/ 537.36(KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36"
+            },
+            transform: (body)=>{
+                return cheerio.load(body);
+            }
+        });
+        $('.tag_div ul li a').each(async (i, item)=>{
+            tags.push($(item).attr('href'));
+        });
+    }catch(e){
+        console.log(e);
+    }
+
     return tags;
 }
 
@@ -309,9 +312,9 @@ const init = async ()=>{
 
 init();
 
-const rule = new schedule.RecurrenceRule();
-rule.hour = [8, 16, 23];
-rule.minute = [0]
-schedule.scheduleJob(rule, async () => {
-    await init();
-})
+// const rule = new schedule.RecurrenceRule();
+// rule.hour = [12, 23];
+// rule.minute = [0]
+// schedule.scheduleJob(rule, async () => {
+//     await init();
+// })
