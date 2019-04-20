@@ -15,18 +15,25 @@ let number = 0; // 用于计数，超过20将不再爬取数据
 
 // 获取相册
 const getAlbum = async (url) => {
-    let $ = await request({
-        url: url,
-        headers: {
-            "DNT": 1,
-            "Host": "www.nvshens.com",
-            "Referer": GALLERY,
-            "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit/ 537.36(KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36"
-        },
-        transform: (body)=>{
-            return cheerio.load(body);
-        }
-    });
+    let $;
+    try{
+        $ = await request({
+            url: url,
+            headers: {
+                "DNT": 1,
+                "Host": "www.nvshens.com",
+                "Referer": GALLERY,
+                "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit/ 537.36(KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36"
+            },
+            transform: (body)=>{
+                return cheerio.load(body);
+            }
+        });
+        
+    }catch(e){
+        console.log(e);
+        return [];
+    }
     let albums = [];
     if ($('#listdiv ul').html()) {
         $('#listdiv ul li').each((i, item) => {
@@ -96,19 +103,24 @@ const handleAlbums = async (albums) => {
 const getPage = async (album_url) => {
     let imgs = [], index = 1;
     let fn = async (url) => {
-        let $ = await request({
-            url: url,
-            headers: {
-                DNT: 1,
-                Host: "www.nvshens.com",
-                Pragma: "no-cache",
-                Referer: GALLERY,
-                "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
-            },
-            transform: (body)=>{
-                return cheerio.load(body);
-            }
-        });
+        let $;
+        try{
+            $ = await request({
+                url: url,
+                headers: {
+                    DNT: 1,
+                    Host: "www.nvshens.com",
+                    Pragma: "no-cache",
+                    Referer: GALLERY,
+                    "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
+                },
+                transform: (body)=>{
+                    return cheerio.load(body);
+                }
+            });
+        }catch(e){
+            console.log(e);
+        }
         if ($('#hgallery').html()) {
             let tags=[];
             $('#utag li a').each(async (i, ele)=>{
