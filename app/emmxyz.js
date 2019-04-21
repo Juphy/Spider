@@ -73,7 +73,7 @@ const main = async ()=>{
                     }
                 });
 
-                $('script').each((i, ele)=>{
+                $('script').each( async (i, ele)=>{
                     let html = $(ele).htm();
                     if(html){
                         eval(html);
