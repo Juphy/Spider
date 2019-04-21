@@ -166,6 +166,7 @@ rule.hour = [12, 23];
 rule.minute = [0]
 schedule.scheduleJob(rule, async () => {
     index = 0;
+    console.log(new Date());
     await main();
 })
 
