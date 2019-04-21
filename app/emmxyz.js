@@ -77,6 +77,7 @@ const handleAlbums = async (datas) => {
 }
 
 const getAllImgs = async (url) =>{
+    let imgs=[];
     let $ = await request({
         url: url,
         headers: {
@@ -91,14 +92,13 @@ const getAllImgs = async (url) =>{
         }
     });
     $('script').each( async (i, ele)=>{
-        let imgs=[];
         let html = $(ele).html();
         if(html){
             eval(html);
             imgs = images;
         }
-        return imgs;
-    })
+    });
+    return imgs;
 }
 
 const getImgs = async (datas) => {
