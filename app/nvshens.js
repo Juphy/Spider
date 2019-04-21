@@ -80,7 +80,8 @@ const handleAlbums = async (albums) => {
                 sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
                 width: result.width,
                 height: result.height,
-                create_time: new Date()
+                create_time: new Date(),
+                category: 'nvshens'
             });
             datas.push({
                 album_url: item.album_url,
