@@ -124,7 +124,7 @@ const getImgs = async (datas) => {
                     await weibo.loginto();
                     result = await weibo.uploadImg(EMMXYZ+images[j]);
                 }
-                if (result.pid) {
+                if (result.pid&&result.width&&result.height) {
                     await Picture.create({
                         name: `${data.album_name}_${j}`,
                         album_id: data.album_id,
