@@ -78,7 +78,7 @@ const main = async ()=>{
                     let html = $(ele).html();
                     if(html){
                         eval(html);
-                        let j=0;
+                        let j = 0;
                         while(j < images.length) {
                             let picture = await Picture.findOne({
                                 where: {
@@ -114,11 +114,13 @@ const main = async ()=>{
                         }
                     }    
                 });
+                
                 i++;
             }
         }else{
             flag = false;
         }
+        inde++;
     }
 }
 
