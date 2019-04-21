@@ -49,21 +49,23 @@ const handleAlbums = async (datas) => {
                 await weibo.loginto();
                 result = await weibo.uploadImg(`${EMMXYZ}${data.Image}`);
             }
-            album = await Album.create({
-                name: data.Title,
-                album_url: `${EMMXYZ}${data.URL}`,
-                url: `${EMMXYZ}${data.Image}`,
-                sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
-                width: result.width,
-                height: result.height,
-                create_time: new Date(data.CreatedAt),
-                category: 'emmxyz'
-            });
-            albums.push({
-                album_name: album.name,
-                album_url: album.album_url,
-                album_id: album.id 
-            })
+            if(result.pid&&result.width&&result.height){
+                album = await Album.create({
+                    name: data.Title,
+                    album_url: `${EMMXYZ}${data.URL}`,
+                    url: `${EMMXYZ}${data.Image}`,
+                    sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
+                    width: result.width,
+                    height: result.height,
+                    create_time: new Date(data.CreatedAt),
+                    category: 'emmxyz'
+                });
+                albums.push({
+                    album_name: album.name,
+                    album_url: album.album_url,
+                    album_id: album.id 
+                })
+            }
         }else{
             albums.push({
                 album_name: album.name,
