@@ -28,14 +28,15 @@ const main = async ()=>{
                 "x-requested-with": "XMLHttpRequest"
             }
         });
+        datas = JSON.parse(datas);
         if(datas.length){
             let i = 0;
             while(i<datas.length){
                 let data = datas[i];
                 let album = await Album.findOne({
-                    where: {
-                        name: data.Title
-                    }
+                        where: {
+                            name: data.Title
+                        }
                 });
                 if(!album){
                     let result;
@@ -96,11 +97,11 @@ const main = async ()=>{
                                 }
                                 if (result.pid) {
                                     await Image.create({
-                                        name: `${data.Title}_${j}`,
+                                        name: `${album.name}_${j}`,
                                         album_id: album.album_id,
                                         width: result.width,
                                         height: result.height,
-                                        album_name: data.Title,
+                                        album_name: album.name,
                                         sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
                                         url: EMMXYZ+images[j],
                                         create_time: new Date(),
