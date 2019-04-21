@@ -73,6 +73,7 @@ const handleAlbums = async (datas) => {
         }
         i++;
     }
+    return albums;
 }
 
 const getImgs = async (datas) => {
