@@ -98,15 +98,15 @@ const getAllImgs = async (url) =>{
             imgs = images;
         }
     });
-    return imgs;
+    return {imgs: imgs, tags:[$('#title span').eq(0).text().split(':').pop().trim()]};
 }
 
 const getImgs = async (datas) => {
     let n = 0;
     while(n < datas.length){
         let data = datas[n];
-        let images = await getAllImgs(data.album_url) 
-
+        let imgs = await getAllImgs(data.album_url) 
+        let images = imgs['imgs'];
         let j = 0;
         while(j < images.length) {
             let picture = await Picture.findOne({
@@ -134,7 +134,7 @@ const getImgs = async (datas) => {
                         sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
                         url: EMMXYZ+images[j],
                         create_time: new Date(),
-                        tags: [$('#title span').eq(0).text().split(':').pop().trim()]
+                        tags: imgs.tags
                     }).catch(err => {
                         console.log(err);
                     })
