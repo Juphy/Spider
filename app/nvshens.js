@@ -33,7 +33,7 @@ const getAlbum = async (url) => {
                 return cheerio.load(body);
             }
         });
-        if ($ && $('#listdiv ul').html()) {
+        if ($('#listdiv ul').html()) {
             $('#listdiv ul li').each((i, item) => {
                 let link = $(item).find('.galleryli_link').attr("href"),
                     title = $(item).find('.galleryli_link img').attr("alt"),
@@ -73,21 +73,23 @@ const handleAlbums = async (albums) => {
                 await weibo.loginto();
                 result = await weibo.uploadImg(item.url);
             }
-            album = await Album.create({
-                name: item.name,
-                album_url: item.album_url,
-                url: item.url,
-                sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
-                width: result.width,
-                height: result.height,
-                create_time: new Date(),
-                category: 'nvshens'
-            });
-            datas.push({
-                album_url: item.album_url,
-                album_id: album.id,
-                album_name: album.name
-            })
+            if(result.pid&&result.width&&result.height){
+                album = await Album.create({
+                    name: item.name,
+                    album_url: item.album_url,
+                    url: item.url,
+                    sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
+                    width: result.width,
+                    height: result.height,
+                    create_time: new Date(),
+                    category: 'nvshens'
+                });
+                datas.push({
+                    album_url: item.album_url,
+                    album_id: album.id,
+                    album_name: album.name
+                })
+            }
         } else {
             // number++;
             // datas.push({
@@ -122,7 +124,7 @@ const getPage = async (album_url) => {
                     return cheerio.load(body);
                 }
             });
-            if ($ && $('#hgallery').html()) {
+            if ($('#hgallery').html()) {
                 let tags=[];
                 $('#utag li a').each(async (i, ele)=>{
                     tags.push($(ele).text());
@@ -240,7 +242,7 @@ const getImgs = async (datas) => {
                     await weibo.loginto();
                     result = await weibo.uploadImg(img.src);
                 }
-                if (result.pid) {
+                if (result.pid&&result.width&&result.height) {
                     await Image.create({
                         name: img.name,
                         album_id: item.album_id,
