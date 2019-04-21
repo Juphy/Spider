@@ -75,7 +75,7 @@ const main = async ()=>{
                 });
 
                 $('script').each( async (i, ele)=>{
-                    let html = $(ele).htm();
+                    let html = $(ele).html();
                     if(html){
                         eval(html);
                         let j=0;
@@ -96,7 +96,7 @@ const main = async ()=>{
                                     result = await weibo.uploadImg(EMMXYZ+images[j]);
                                 }
                                 if (result.pid) {
-                                    await Image.create({
+                                    await Picture.create({
                                         name: `${album.name}_${j}`,
                                         album_id: album.album_id,
                                         width: result.width,
