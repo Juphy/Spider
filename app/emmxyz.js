@@ -76,64 +76,72 @@ const handleAlbums = async (datas) => {
     return albums;
 }
 
+const getAllImgs = async (url) =>{
+    let $ = await request({
+        url: data.album_url,
+        headers: {
+            "cache-control": "no-cache",
+            "pragma": "no-cache",
+            "referer": EMMXYZ,
+            "upgrade-insecure-requests": 1,
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36"
+        },
+        transform:body => {
+            return cheerio.load(body);
+        }
+    });
+    $('script').each( async (i, ele)=>{
+        let imgs=[];
+        let html = $(ele).html();
+        if(html){
+            eval(html);
+            imgs = images;
+        }
+        return imgs;
+    })
+}
+
 const getImgs = async (datas) => {
     let n = 0;
     while(n < datas.length){
         let data = datas[n];
-        let $ = await request({
-            url: data.album_url,
-            headers: {
-                "cache-control": "no-cache",
-                "pragma": "no-cache",
-                "referer": EMMXYZ,
-                "upgrade-insecure-requests": 1,
-                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36"
-            },
-            transform:body => {
-                return cheerio.load(body);
-            }
-        });
+        let images = await getAllImgs(data.album_url) 
 
-        $('script').each( async (i, ele)=>{
-            let html = $(ele).html();
-            if(html){
-                eval(html);
-                let j = 0;
-                while(j < images.length) {
-                    let picture = await Picture.findOne({
-                        where: {
-                            name: `${data.Title}_${j}`
-                        }
-                    });
-                    if(!picture){
-                        let result;
-                        try {
-                            result = await weibo.uploadImg(EMMXYZ+images[j]);
-                        } catch (e) {
-                            console.log('cookie error', result);
-                            weibo.TASK && weibo.TASK.cancel();
-                            await weibo.loginto();
-                            result = await weibo.uploadImg(EMMXYZ+images[j]);
-                        }
-                        if (result.pid) {
-                            await Picture.create({
-                                name: `${album.album_name}_${j}`,
-                                album_id: album.album_id,
-                                width: result.width,
-                                height: result.height,
-                                album_name: album.album_name,
-                                sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
-                                url: EMMXYZ+images[j],
-                                create_time: new Date(),
-                                tags: [$('#title span').eq(0).text().split(':').pop().trim()]
-                            }).catch(err => {
-                                console.log(err);
-                            })
-                        }
-                    }
+        let j = 0;
+        while(j < images.length) {
+            let picture = await Picture.findOne({
+                where: {
+                    name: `${data.album_name}_${j}`
                 }
-            }    
-        });
+            });
+            if(!picture){
+                let result;
+                try {
+                    result = await weibo.uploadImg(EMMXYZ+images[j]);
+                } catch (e) {
+                    console.log('cookie error', result);
+                    weibo.TASK && weibo.TASK.cancel();
+                    await weibo.loginto();
+                    result = await weibo.uploadImg(EMMXYZ+images[j]);
+                }
+                if (result.pid) {
+                    await Picture.create({
+                        name: `${data.album_name}_${j}`,
+                        album_id: data.album_id,
+                        width: result.width,
+                        height: result.height,
+                        album_name: data.album_name,
+                        sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
+                        url: EMMXYZ+images[j],
+                        create_time: new Date(),
+                        tags: [$('#title span').eq(0).text().split(':').pop().trim()]
+                    }).catch(err => {
+                        console.log(err);
+                    })
+                }
+            }
+            j++;
+        }
         n++;
     }
 }
