@@ -98,7 +98,7 @@ const main = async ()=>{
                                 if (result.pid) {
                                     await Picture.create({
                                         name: `${album.name}_${j}`,
-                                        album_id: album.album_id,
+                                        album_id: album.id,
                                         width: result.width,
                                         height: result.height,
                                         album_name: album.name,
