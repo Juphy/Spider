@@ -11,7 +11,6 @@ const {
 } = require("../lib/model");
     
 
-
 const main = async ()=>{
     let index = 1; // 自增页数
     let flag = true;
@@ -114,13 +113,13 @@ const main = async ()=>{
                         }
                     }    
                 });
-                
+
                 i++;
             }
         }else{
             flag = false;
         }
-        inde++;
+        index++;
     }
 }
 
