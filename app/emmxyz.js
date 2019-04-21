@@ -78,7 +78,7 @@ const handleAlbums = async (datas) => {
 
 const getAllImgs = async (url) =>{
     let $ = await request({
-        url: data.album_url,
+        url: url,
         headers: {
             "cache-control": "no-cache",
             "pragma": "no-cache",
