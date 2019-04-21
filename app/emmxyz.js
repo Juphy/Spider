@@ -14,7 +14,7 @@ let index = 1; // 自增页数
     
 const getAlbums = async () => {
     let datas = await request({
-        url: `${EMMXYZ}/api/v1/belles?pageSize=20&pageNumber=${index}&_=1555818841661`,
+        url: `${EMMXYZ}/api/v1/belles?pageSize=20&pageNumber=${index}&_=1555846098646`,
         headers: {
             "cache-control": "no-cache",
             "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -81,7 +81,7 @@ const getImgs = async (datas) => {
     while(n < datas.length){
         let data = datas[n];
         let $ = await request({
-            url: `${EMMXYZ}${data.album_url}`,
+            url: data.album_url,
             headers: {
                 "cache-control": "no-cache",
                 "pragma": "no-cache",
