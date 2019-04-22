@@ -11,7 +11,7 @@ const {
 
 let keys = ['推女郎', '性感', '车模', '美腿', "美女", 'beauty', 'sexy', 'BingEverydayWallpaperPicture'];
 
-let i = 5;
+let i = 5; // keys的索引
 let page = 0, pagesize = 20;
 
 const handleImages = async (images) => {
@@ -68,20 +68,20 @@ const getImages = async () => {
 }
 
 
-const main = async () => {
+const main = async (n) => {
     while (i < keys.length) {
         await getImages();
         page = 0;
         await new Promise((resolve, reject) => {
             setTimeout(() => {
                 resolve();
-            }, 1.5 * 60 * 60 * 1000);
+            }, n * 1.5 * 60 * 60 * 1000);
         });
         i++;
     }
 }
 
-main();
+main(0);
 
 const rule = new schedule.RecurrenceRule();
 rule.hour = [12, 23];
@@ -89,5 +89,5 @@ rule.minute = [0]
 schedule.scheduleJob(rule, async () => {
     i = 0;
     console.log(new Date());
-    await main();
+    await main(1);
 })
