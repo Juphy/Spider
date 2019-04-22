@@ -9,7 +9,7 @@ const {
     Photo
 } = require("../lib/model");
 
-let keys = ['%E6%8E%A8%E5%A5%B3%E9%83%8E', '%E6%80%A7%E6%84%9F', '%E8%BD%A6%E6%A8%A1', '%E7%BE%8E%E8%85%BF', 'sexy', 'BingEverydayWallpaperPicture', ''];
+let keys = ['推女郎', '性感', '车模', '美腿', 'sexy', 'BingEverydayWallpaperPicture', ''];
 
 let i = 0;
 let page = 0, pagesize = 20;
@@ -44,7 +44,9 @@ const handleImages = async (images) => {
                 tags: [keys[i]]
             })
         } else {
-
+            await photo.update({
+                tags: [keys[i]]
+            })
         }
         j++;
     }
@@ -52,7 +54,7 @@ const handleImages = async (images) => {
 
 const getImages = async (key) => {
     let images = await request({
-        url: `https://uploadbeta.com/api/pictures/search/?key=${key}&start=${page * pagesize}&offset=${pagesize}`
+        url: `https://uploadbeta.com/api/pictures/search/?key=${encodeURI(key)}&start=${page * pagesize}&offset=${pagesize}`
     });
     images = JSON.parse(images);
     if (images && images.length) {
