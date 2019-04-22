@@ -68,6 +68,7 @@ const getImages = async (key) => {
 const main = async () => {
     while (i < keys.length) {
         await getImages(keys[0]);
+        page = 0;
         i++;
     }
 }
