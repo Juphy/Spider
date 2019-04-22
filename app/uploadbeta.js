@@ -9,7 +9,7 @@ const {
     Photo
 } = require("../lib/model");
 
-let keys = ['推女郎', '性感', '车模', '美腿', 'sexy', 'BingEverydayWallpaperPicture', ''];
+let keys = ['推女郎', '性感', '车模', '美腿', "美女", 'beauty', 'sexy', 'BingEverydayWallpaperPicture', ''];
 
 let i = 0;
 let page = 0, pagesize = 20;
@@ -20,7 +20,8 @@ const handleImages = async (images) => {
         let img = images[j];
         let photo = await Photo.findOne({
             where: {
-                name: img.title
+                name: img.title,
+                album_name: img.picgroup
             }
         });
         if (!photo) {
@@ -44,9 +45,11 @@ const handleImages = async (images) => {
                 tags: [keys[i]]
             })
         } else {
-            await photo.update({
-                tags: [keys[i]]
-            })
+            if (!photo.tags.includes(keys[i])) {
+                await photo.update({
+                    tags: photo.tags.concat(keys[i])
+                })
+            }
         }
         j++;
     }
