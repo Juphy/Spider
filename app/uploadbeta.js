@@ -52,22 +52,22 @@ const handleImages = async (images) => {
     }
 }
 
-const getImages = async (key) => {
+const getImages = async () => {
     let images = await request({
-        url: `https://uploadbeta.com/api/pictures/search/?key=${encodeURI(key)}&start=${page * pagesize}&offset=${pagesize}`
+        url: `https://uploadbeta.com/api/pictures/search/?key=${encodeURI(keys[i])}&start=${page * pagesize}&offset=${pagesize}`
     });
     images = JSON.parse(images);
     if (images && images.length) {
         await handleImages(images);
         page++;
-        await getImages(key);
+        await getImages(keys[i]);
     }
 }
 
 
 const main = async () => {
     while (i < keys.length) {
-        await getImages(keys[0]);
+        await getImages();
         page = 0;
         i++;
     }
