@@ -9,9 +9,9 @@ const {
     Photo
 } = require("../lib/model");
 
-let keys = ['推女郎', '性感', '车模', '美腿', "美女", 'beauty', 'sexy', 'BingEverydayWallpaperPicture', ''];
+let keys = ['推女郎', '性感', '车模', '美腿', "美女", 'beauty', 'sexy', 'BingEverydayWallpaperPicture'];
 
-let i = 0;
+let i = 5;
 let page = 0, pagesize = 20;
 
 const handleImages = async (images) => {
@@ -29,7 +29,7 @@ const handleImages = async (images) => {
             try {
                 result = await weibo.uploadImg(`${UPLOADBETA}/_s/${img.url}`);
             } catch (e) {
-                console.log('cookie error', result)
+                console.log('cookie error', new Date(), result)
                 weibo.TASK && weibo.TASK.cancel();
                 await weibo.loginto();
                 result = await weibo.uploadImg(`${UPLOADBETA}/_s/${img.url}`);
@@ -38,7 +38,7 @@ const handleImages = async (images) => {
                 name: img.title,
                 album_name: img.picgroup,
                 url: `${UPLOADBETA}/_s/${img.url}`,
-                sina_url: result.pid ? `http://ww1.sinaimg.cn/large/${result.pid}.jpg` : '',
+                sina_url: (result && result.pid) ? `http://ww1.sinaimg.cn/large/${result.pid}.jpg` : '',
                 width: img.width,
                 height: img.height,
                 create_time: new Date(),
@@ -72,8 +72,22 @@ const main = async () => {
     while (i < keys.length) {
         await getImages();
         page = 0;
+        await new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve();
+            }, 1.5 * 60 * 60 * 1000);
+        });
         i++;
     }
 }
 
 main();
+
+const rule = new schedule.RecurrenceRule();
+rule.hour = [12, 23];
+rule.minute = [0]
+schedule.scheduleJob(rule, async () => {
+    i = 0;
+    console.log(new Date());
+    await main();
+})
