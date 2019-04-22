@@ -316,7 +316,7 @@ const init = async () => {
     const tags = await getAllTags(GALLERY);
     let i = 0;
     while (i < tags.length) {
-        let url = NVSHEN + tags[0];
+        let url = NVSHEN + tags[i];
         await main(url, url);
         await new Promise((resolve, reject) => {
             setTimeout(() => {
