@@ -24,7 +24,7 @@ const handleImages = async (images) => {
                 album_name: img.picgroup
             }
         });
-        if (!photo) {
+        if (!photo && (img.size < 1024 * 1024 * 5)) {
             let result;
             // try {
             //     result = await weibo.uploadImg(`${UPLOADBETA}/_s/${img.url}`);
@@ -34,17 +34,22 @@ const handleImages = async (images) => {
             //     await weibo.loginto();
             //     result = await weibo.uploadImg(`${UPLOADBETA}/_s/${img.url}`);
             // }
-            result = await weibo.uploadImg(`${UPLOADBETA}/_s/${img.url}`);
-            photo = await Photo.create({
-                name: img.title,
-                album_name: img.picgroup,
-                url: `${UPLOADBETA}/_s/${img.url}`,
-                sina_url: (result && result.pid) ? `http://ww1.sinaimg.cn/large/${result.pid}.jpg` : '',
-                width: img.width,
-                height: img.height,
-                create_time: new Date(),
-                tags: [keys[i]]
-            })
+            try {
+                result = await weibo.uploadImg(`${UPLOADBETA}/_s/${img.url}`);
+            } catch (e) {
+                console.log("上传图片报错", e);
+            } finally {
+                photo = await Photo.create({
+                    name: img.title,
+                    album_name: img.picgroup,
+                    url: `${UPLOADBETA}/_s/${img.url}`,
+                    sina_url: (result && result.pid) ? `http://ww1.sinaimg.cn/large/${result.pid}.jpg` : '',
+                    width: img.width,
+                    height: img.height,
+                    create_time: new Date(),
+                    tags: [keys[i]]
+                })
+            }
         } else {
             if (!photo.tags.includes(keys[i])) {
                 await photo.update({

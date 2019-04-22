@@ -18,7 +18,7 @@ let number = 0; // 用于计数，超过20将不再爬取数据
 const getAlbum = async (url) => {
     let $;
     let albums = [];
-    try{
+    try {
         $ = await request({
             url: url,
             headers: {
@@ -29,7 +29,7 @@ const getAlbum = async (url) => {
                 "Referer": GALLERY,
                 "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit/ 537.36(KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36"
             },
-            transform: (body)=>{
+            transform: (body) => {
                 return cheerio.load(body);
             }
         });
@@ -44,8 +44,8 @@ const getAlbum = async (url) => {
                     url: cover
                 })
             });
-        }   
-    }catch(e){
+        }
+    } catch (e) {
         console.log(e);
     }
     return albums;
@@ -73,7 +73,7 @@ const handleAlbums = async (albums) => {
                 await weibo.loginto();
                 result = await weibo.uploadImg(item.url);
             }
-            if(result.pid&&result.width&&result.height){
+            if (result.pid && result.width && result.height) {
                 album = await Album.create({
                     name: item.name,
                     album_url: item.album_url,
@@ -108,7 +108,7 @@ const getPage = async (album_url) => {
     let imgs = [], index = 1;
     let fn = async (url) => {
         let $;
-        try{
+        try {
             $ = await request({
                 url: url,
                 headers: {
@@ -120,13 +120,13 @@ const getPage = async (album_url) => {
                     Referer: GALLERY,
                     "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
                 },
-                transform: (body)=>{
+                transform: (body) => {
                     return cheerio.load(body);
                 }
             });
             if ($('#hgallery').html()) {
-                let tags=[];
-                $('#utag li a').each(async (i, ele)=>{
+                let tags = [];
+                $('#utag li a').each(async (i, ele) => {
                     tags.push($(ele).text());
                 })
                 $("#hgallery").children().each(async (i, ele) => {
@@ -139,7 +139,7 @@ const getPage = async (album_url) => {
                 index++;
                 await fn(NVSHEN + album_url + `/${index}.html`);
             }
-        }catch(e){
+        } catch (e) {
             console.log(e);
         }
     };
@@ -242,7 +242,7 @@ const getImgs = async (datas) => {
                     await weibo.loginto();
                     result = await weibo.uploadImg(img.src);
                 }
-                if (result.pid&&result.width&&result.height) {
+                if (result.pid && result.width && result.height) {
                     await Image.create({
                         name: img.name,
                         album_id: item.album_id,
@@ -257,7 +257,7 @@ const getImgs = async (datas) => {
                         console.log(err);
                     })
                 }
-            }else{
+            } else {
                 await image.update({
                     tags: img.tags
                 })
@@ -282,9 +282,9 @@ const main = async (url, URL) => {
     }
 }
 
-const getAllTags = async (url)=>{
+const getAllTags = async (url) => {
     let tags = [];
-    try{
+    try {
         let $ = await request({
             url: url,
             headers: {
@@ -295,16 +295,16 @@ const getAllTags = async (url)=>{
                 "Referer": GALLERY,
                 "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit/ 537.36(KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36"
             },
-            transform: (body)=>{
+            transform: (body) => {
                 return cheerio.load(body);
             }
         });
-        if($ && $('.tag_div').html()){
-            $('.tag_div ul li a').each(async (i, item)=>{
+        if ($ && $('.tag_div').html()) {
+            $('.tag_div ul li a').each(async (i, item) => {
                 tags.push($(item).attr('href'));
             });
         }
-    }catch(e){
+    } catch (e) {
         console.log(e);
     }
 
@@ -312,12 +312,17 @@ const getAllTags = async (url)=>{
 }
 
 
-const init = async ()=>{
+const init = async () => {
     const tags = await getAllTags(GALLERY);
-    let i=0;
-    while(i < tags.length){
-        let url=NVSHEN + tags[0];
+    let i = 0;
+    while (i < tags.length) {
+        let url = NVSHEN + tags[0];
         await main(url, url);
+        await new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve();
+            }, 2 * 60 * 60 * 1000);
+        });
         i++;
     }
 }
