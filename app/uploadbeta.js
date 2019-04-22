@@ -26,14 +26,15 @@ const handleImages = async (images) => {
         });
         if (!photo) {
             let result;
-            try {
-                result = await weibo.uploadImg(`${UPLOADBETA}/_s/${img.url}`);
-            } catch (e) {
-                console.log('cookie error', new Date(), result)
-                weibo.TASK && weibo.TASK.cancel();
-                await weibo.loginto();
-                result = await weibo.uploadImg(`${UPLOADBETA}/_s/${img.url}`);
-            }
+            // try {
+            //     result = await weibo.uploadImg(`${UPLOADBETA}/_s/${img.url}`);
+            // } catch (e) {
+            //     console.log('cookie error', new Date(), result)
+            //     weibo.TASK && weibo.TASK.cancel();
+            //     await weibo.loginto();
+            //     result = await weibo.uploadImg(`${UPLOADBETA}/_s/${img.url}`);
+            // }
+            result = await weibo.uploadImg(`${UPLOADBETA}/_s/${img.url}`);
             photo = await Photo.create({
                 name: img.title,
                 album_name: img.picgroup,
