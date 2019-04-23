@@ -12,7 +12,7 @@ const {
 } = require("../lib/model");
 
 let index = 1; // 自增页数
-let number = 0; // 用于计数，超过20将不再爬取数据
+let number = 0; // 用于计数，超过5000休息两小时
 
 // 获取相册
 const getAlbum = async (url) => {
@@ -243,6 +243,7 @@ const getImgs = async (datas) => {
                     result = await weibo.uploadImg(img.src);
                 }
                 if (result.pid && result.width && result.height) {
+                    number++;
                     await Image.create({
                         name: img.name,
                         album_id: item.album_id,
@@ -318,11 +319,14 @@ const init = async () => {
     while (i < tags.length) {
         let url = NVSHEN + tags[0];
         await main(url, url);
-        await new Promise((resolve, reject) => {
-            setTimeout(() => {
-                resolve();
-            }, 2 * 60 * 60 * 1000);
-        });
+        if (number > 5000) {
+            await new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    number = 0;
+                    resolve();
+                }, 2 * 60 * 60 * 1000);
+            });
+        }
         i++;
     }
 }
