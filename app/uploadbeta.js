@@ -9,9 +9,9 @@ const {
     Photo
 } = require("../lib/model");
 
-let keys = ['推女郎', '性感', '车模', '美腿', "美女", 'beauty', 'sexy', 'BingEverydayWallpaperPicture'];
+let keys = ['推女郎', '性感', '车模', '美腿', "美女", 'beauty', 'sexy', 'girl', 'BingEverydayWallpaperPicture'];
 
-let i = 5; // keys的索引
+let i = 0; // keys的索引
 let page = 0, pagesize = 20;
 
 const handleImages = async (images) => {
@@ -92,7 +92,7 @@ const main = async (n) => {
 main(0);
 
 const rule = new schedule.RecurrenceRule();
-rule.hour = [12, 23];
+rule.hour = [1, 12];
 rule.minute = [0]
 schedule.scheduleJob(rule, async () => {
     i = 0;

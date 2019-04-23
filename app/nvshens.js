@@ -319,7 +319,7 @@ const init = async () => {
     while (i < tags.length) {
         let url = NVSHEN + tags[i];
         await main(url, url);
-        if (number > 5000) {
+        if (number > 3000) {
             await new Promise((resolve, reject) => {
                 setTimeout(() => {
                     number = 0;
@@ -334,7 +334,7 @@ const init = async () => {
 init();
 
 // const rule = new schedule.RecurrenceRule();
-// rule.hour = [12, 23];
+// rule.hour = [3, 14];
 // rule.minute = [0]
 // schedule.scheduleJob(rule, async () => {
 //     await init();
