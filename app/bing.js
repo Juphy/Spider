@@ -68,7 +68,7 @@ const handleImg = async (images) => {
 let main = async () => {
     let images = await getPerPage();
     await handleImg(images);
-    if (!index) {
+    if (index) {
         index++;
         await main();
     }
