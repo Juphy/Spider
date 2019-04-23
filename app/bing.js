@@ -1,6 +1,6 @@
 let request = require("request-promise"),
     cheerio = require("cheerio");
-
+let { URL_BING: BING } = require("../config");
 let weibo = require("../main");
 
 const {
@@ -12,7 +12,7 @@ let index = 1;
 const getPerPage = async () => {
     let images = [];
     let $ = await request({
-        url: "https://bing.ioliu.cn/?p=" + index,
+        url: BING + "/?p=" + index,
         transform: body => {
             return cheerio.load(body);
         }
