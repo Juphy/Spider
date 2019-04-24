@@ -11,20 +11,25 @@ let index = 1;
 
 const getPerPage = async () => {
     let images = [];
-    let $ = await request({
-        url: BING + "/?p=" + index,
-        transform: body => {
-            return cheerio.load(body);
-        }
-    });
-    $('.container .item .card').each(async (i, ele) => {
-        let _$ = cheerio.load($(ele).html());
-        images.push({
-            url: _$('img').attr("src"),
-            title: _$('.description h3').text(),
-            day: _$('.description .calendar .t').text()
+    let $;
+    try {
+        $ = await request({
+            url: BING + "/?p=" + index,
+            transform: body => {
+                return cheerio.load(body);
+            }
         });
-    });
+        $('.container .item .card').each(async (i, ele) => {
+            let _$ = cheerio.load($(ele).html());
+            images.push({
+                url: _$('img').attr("src"),
+                title: _$('.description h3').text(),
+                day: _$('.description .calendar .t').text()
+            });
+        });
+    } catch (e) {
+        console.log(e);
+    }
     return images;
 }
 
