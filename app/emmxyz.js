@@ -163,10 +163,11 @@ const main = async () => {
 
 const rule = new schedule.RecurrenceRule();
 rule.hour = [2, 13];
-rule.minute = [0]
+rule.minute = [0];
+rule.second = [0];
 schedule.scheduleJob(rule, async () => {
     index = 0;
-    console.log(new Date());
+    console.log("重启时间", new Date());
     await main();
 })
 

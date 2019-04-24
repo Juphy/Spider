@@ -1,4 +1,5 @@
 let request = require("request-promise"),
+    schedule = require('node-schedule'),
     cheerio = require("cheerio");
 let { URL_BING: BING } = require("../config");
 let weibo = require("../main");
@@ -11,22 +12,22 @@ let index = 1;
 
 const getPerPage = async () => {
     let images = [];
-    let $;
+    let html;
     try {
-        $ = await request({
-            url: BING + "/?p=" + index,
-            transform: body => {
-                return cheerio.load(body);
-            }
+        html = await request({
+            url: BING + "/?p=" + index
         });
-        $('.container .item .card').each(async (i, ele) => {
-            let _$ = cheerio.load($(ele).html());
-            images.push({
-                url: _$('img').attr("src"),
-                title: _$('.description h3').text(),
-                day: _$('.description .calendar .t').text()
+        let $ = await cheerio.load(html);
+        if ($('.container .item .card').html()) {
+            $('.container .item .card').each(async (i, ele) => {
+                let _$ = cheerio.load($(ele).html());
+                images.push({
+                    url: _$('img').attr("src"),
+                    title: _$('.description h3').text(),
+                    day: _$('.description .calendar .t').text()
+                });
             });
-        });
+        }
     } catch (e) {
         console.log(e);
     }
@@ -79,4 +80,13 @@ let main = async () => {
     }
 }
 
-main();
+// main();
+
+const rule = new schedule.RecurrenceRule();
+rule.hour = [0, 6];
+rule.minute = [0];
+rule.second = [0];
+schedule.scheduleJob(rule, async () => {
+    console.log("重启时间", new Date());
+    await main();
+})

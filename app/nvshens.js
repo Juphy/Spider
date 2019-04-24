@@ -335,7 +335,8 @@ init();
 
 // const rule = new schedule.RecurrenceRule();
 // rule.hour = [3, 14];
-// rule.minute = [0]
+// rule.minute = [0];
+// rule.second = [0];
 // schedule.scheduleJob(rule, async () => {
 //     await init();
 // })
