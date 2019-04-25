@@ -8,7 +8,7 @@ let weibo = require("../main");
 const {
     Image,
     Album,
-    Picture
+    Image1
 } = require("../lib/model");
 
 let index = 1; // 自增页数
@@ -82,7 +82,8 @@ const handleAlbums = async (albums) => {
                     width: result.width,
                     height: result.height,
                     create_time: new Date(),
-                    category: 'nvshens'
+                    category: 'nvshens',
+                    table: "web_images1"
                 });
                 datas.push({
                     album_url: item.album_url,
@@ -227,42 +228,42 @@ const getImgs = async (datas) => {
         let i = 0;
         while (i < images.length) {
             let img = images[i];
-            let image = await Image.findOne({
-                where: {
-                    name: img.name
-                }
-            });
-            if (!image) {
-                let result;
-                try {
-                    result = await weibo.uploadImg(img.src);
-                } catch (e) {
-                    console.log('cookie error', result);
-                    weibo.TASK && weibo.TASK.cancel();
-                    await weibo.loginto();
-                    result = await weibo.uploadImg(img.src);
-                }
-                if (result.pid && result.width && result.height) {
-                    number++;
-                    await Image.create({
-                        name: img.name,
-                        album_id: item.album_id,
-                        width: result.width,
-                        height: result.height,
-                        album_name: item.album_name,
-                        sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
-                        url: img.src,
-                        create_time: new Date(),
-                        tags: img.tags
-                    }).catch(err => {
-                        console.log(err);
-                    })
-                }
-            } else {
-                await image.update({
+            // let image = await Image.findOne({
+            //     where: {
+            //         name: img.name
+            //     }
+            // });
+            // if (!image) {
+            let result;
+            try {
+                result = await weibo.uploadImg(img.src);
+            } catch (e) {
+                console.log('cookie error', result);
+                weibo.TASK && weibo.TASK.cancel();
+                await weibo.loginto();
+                result = await weibo.uploadImg(img.src);
+            }
+            if (result.pid && result.width && result.height) {
+                number++;
+                await Image1.create({
+                    name: img.name,
+                    album_id: item.album_id,
+                    width: result.width,
+                    height: result.height,
+                    album_name: item.album_name,
+                    sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
+                    url: img.src,
+                    create_time: new Date(),
                     tags: img.tags
+                }).catch(err => {
+                    console.log(err);
                 })
             }
+            // } else {
+            //     await image.update({
+            //         tags: img.tags
+            //     })
+            // }
             i++;
         };
         // await new Promise(async (resolve, reject) => {

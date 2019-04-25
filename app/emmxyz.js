@@ -59,7 +59,8 @@ const handleAlbums = async (datas) => {
                     width: result.width,
                     height: result.height,
                     create_time: new Date(data.CreatedAt),
-                    category: 'emmxyz'
+                    category: 'emmxyz',
+                    table: "web_images"
                 });
                 albums.push({
                     album_name: album.name,
@@ -68,11 +69,11 @@ const handleAlbums = async (datas) => {
                 })
             }
         } else {
-            albums.push({
-                album_name: album.name,
-                album_url: album.album_url,
-                album_id: album.id
-            })
+            // albums.push({
+            //     album_name: album.name,
+            //     album_url: album.album_url,
+            //     album_id: album.id
+            // })
         }
         i++;
     }
