@@ -25,7 +25,7 @@ const handleImages = async (images) => {
             }
         });
         if (!photo) {
-            if( img.size < 1024 * 1024 * 5 ) {
+            if (img.size < 1024 * 1024 * 5) {
                 let result;
                 // try {
                 //     result = await weibo.uploadImg(`${UPLOADBETA}/_s/${img.url}`);
@@ -89,14 +89,15 @@ const main = async (n) => {
     }
 }
 
-main(0);
+// main(0);
 
 const rule = new schedule.RecurrenceRule();
 rule.hour = [1, 12];
-rule.minute = [0]
+rule.minute = [0];
+rule.second = [0];
 schedule.scheduleJob(rule, async () => {
     i = 0;
     page = 0;
-    console.log(new Date());
+    console.log("重启时间", new Date());
     await main(1);
 })

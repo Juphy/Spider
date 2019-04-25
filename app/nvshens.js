@@ -76,7 +76,7 @@ const handleAlbums = async (albums) => {
             if (result.pid && result.width && result.height) {
                 album = await Album.create({
                     name: item.name,
-                    album_url: item.album_url,
+                    album_url: NVSHEN + item.album_url,
                     url: item.url,
                     sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
                     width: result.width,
@@ -336,7 +336,8 @@ init();
 
 // const rule = new schedule.RecurrenceRule();
 // rule.hour = [3, 14];
-// rule.minute = [0]
+// rule.minute = [0];
+// rule.second = [0];
 // schedule.scheduleJob(rule, async () => {
 //     await init();
 // })
