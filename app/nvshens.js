@@ -63,6 +63,28 @@ const handleAlbums = async (albums) => {
                 name: item.name
             }
         });
+        let $ = await request({
+            url: NVSHEN + item.album_url,
+            headers: {
+                "Connection": "keep-alive",
+                'Cookie': COOKIE,
+                DNT: 1,
+                Host: "www.nvshens.com",
+                Pragma: "no-cache",
+                Referer: GALLERY,
+                "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
+            },
+            transform: (body) => {
+                return cheerio.load(body);
+            }
+        });
+        let tags = [];
+        if ($('#hgallery').html()) {
+            $('#utag li a').each(async (i, ele) => {
+                tags.push($(ele).text());
+            })
+        }
+
         if (!album) {
             let result;
             try {
@@ -81,9 +103,9 @@ const handleAlbums = async (albums) => {
                     sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
                     width: result.width,
                     height: result.height,
-                    create_time: new Date(),
                     category: 'nvshens',
-                    table: "web_images1"
+                    table: "web_images1",
+                    tags: tags
                 });
                 datas.push({
                     album_url: item.album_url,
@@ -92,6 +114,9 @@ const handleAlbums = async (albums) => {
                 })
             }
         } else {
+            await album.update({
+                tags: tags
+            })
             // number++;
             // datas.push({
             //     album_url: album.album_url,
@@ -99,6 +124,9 @@ const handleAlbums = async (albums) => {
             //     album_name: album.name
             // })
         }
+        await new Promise(async (resolve, reject) => {
+            setTimeout(resolve, 1000);
+        });
         i++;
     }
     return datas;
@@ -126,15 +154,10 @@ const getPage = async (album_url) => {
                 }
             });
             if ($('#hgallery').html()) {
-                let tags = [];
-                $('#utag li a').each(async (i, ele) => {
-                    tags.push($(ele).text());
-                })
                 $("#hgallery").children().each(async (i, ele) => {
                     imgs.push({
                         name: $(ele).attr('alt'),
                         src: $(ele).attr("src"),
-                        tags: tags
                     })
                 });
                 index++;
@@ -252,9 +275,7 @@ const getImgs = async (datas) => {
                     height: result.height,
                     album_name: item.album_name,
                     sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
-                    url: img.src,
-                    create_time: new Date(),
-                    tags: img.tags
+                    url: img.src
                 }).catch(err => {
                     console.log(err);
                 })
@@ -264,11 +285,11 @@ const getImgs = async (datas) => {
             //         tags: img.tags
             //     })
             // }
+            await new Promise(async (resolve, reject) => {
+                setTimeout(resolve, 1000);
+            })
             i++;
         };
-        // await new Promise(async (resolve, reject) => {
-        //     setTimeout(resolve, 1000);
-        // })
         n++;
     }
 }
