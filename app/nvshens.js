@@ -126,7 +126,7 @@ const handleAlbums = async (albums) => {
             // })
         }
         await new Promise(async (resolve, reject) => {
-            setTimeout(resolve(null), 3000);
+            setTimeout(resolve, 3000);
         });
         i++;
     }
@@ -287,7 +287,7 @@ const getImgs = async (datas) => {
             //     })
             // }
             await new Promise(async (resolve, reject) => {
-                setTimeout(resolve(null), 1000);
+                setTimeout(resolve, 1000);
             })
             i++;
         };
