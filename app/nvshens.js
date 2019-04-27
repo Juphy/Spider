@@ -103,6 +103,7 @@ const handleAlbums = async (albums) => {
                     sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
                     width: result.width,
                     height: result.height,
+                    create_time: new Date(),
                     category: 'nvshens',
                     table: "web_images1",
                     tags: tags
@@ -125,7 +126,7 @@ const handleAlbums = async (albums) => {
             // })
         }
         await new Promise(async (resolve, reject) => {
-            setTimeout(resolve, 1000);
+            setTimeout(resolve, 3000);
         });
         i++;
     }
