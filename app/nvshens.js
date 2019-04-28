@@ -338,6 +338,7 @@ const init = async () => {
         console.log(tags[i]);
         let url = NVSHEN + tags[i];
         await main(url, url);
+        index = 1;
         if (number > 3000) {
             await new Promise((resolve, reject) => {
                 setTimeout(() => {
