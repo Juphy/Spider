@@ -10,7 +10,7 @@ const {
 
 let index = 1;
 
-const getPerPage = async () => {
+const getPerPage = async() => {
     let images = [];
     let html;
     try {
@@ -19,7 +19,7 @@ const getPerPage = async () => {
         });
         let $ = await cheerio.load(html);
         if ($('.container .item .card').html()) {
-            $('.container .item .card').each(async (i, ele) => {
+            $('.container .item .card').each(async(i, ele) => {
                 let _$ = cheerio.load($(ele).html());
                 images.push({
                     url: _$('img').attr("src"),
@@ -34,7 +34,7 @@ const getPerPage = async () => {
     return images;
 }
 
-const handleImg = async (images) => {
+const handleImg = async(images) => {
     let i = 0;
     while (i < images.length) {
         let img = images[i];
@@ -71,7 +71,7 @@ const handleImg = async (images) => {
     }
 }
 
-let main = async () => {
+let main = async() => {
     let images = await getPerPage();
     await handleImg(images);
     if (index) {
@@ -83,10 +83,10 @@ let main = async () => {
 // main();
 
 const rule = new schedule.RecurrenceRule();
-rule.hour = [0, 6];
+rule.hour = [0, 6, 12, 18, 23];
 rule.minute = [0];
 rule.second = [0];
-schedule.scheduleJob(rule, async () => {
+schedule.scheduleJob(rule, async() => {
     console.log("重启时间", new Date());
     await main();
 })

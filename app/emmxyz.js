@@ -13,7 +13,7 @@ const {
 
 let index = 1; // 自增页数
 
-const getAlbums = async () => {
+const getAlbums = async() => {
     let datas = await request({
         url: `${EMMXYZ}/api/v1/belles?pageSize=20&pageNumber=${index}&_=1555846098646`,
         headers: {
@@ -30,7 +30,7 @@ const getAlbums = async () => {
     return datas;
 }
 
-const handleAlbums = async (datas) => {
+const handleAlbums = async(datas) => {
     let i = 0;
     let albums = [];
     while (i < datas.length) {
@@ -80,7 +80,7 @@ const handleAlbums = async (datas) => {
     return albums;
 }
 
-const getAllImgs = async (url) => {
+const getAllImgs = async(url) => {
     let imgs = [];
     let $ = await request({
         url: url,
@@ -95,7 +95,7 @@ const getAllImgs = async (url) => {
             return cheerio.load(body);
         }
     });
-    $('script').each(async (i, ele) => {
+    $('script').each(async(i, ele) => {
         let html = $(ele).html();
         if (html) {
             eval(html);
@@ -105,7 +105,7 @@ const getAllImgs = async (url) => {
     return { imgs: imgs, tags: [$('#title span').eq(0).text().split(':').pop().trim()] };
 }
 
-const getImgs = async (datas) => {
+const getImgs = async(datas) => {
     let n = 0;
     while (n < datas.length) {
         let data = datas[n];
@@ -150,7 +150,7 @@ const getImgs = async (datas) => {
     }
 }
 
-const main = async () => {
+const main = async() => {
     const albums = await getAlbums();
     if (albums.length) {
         const datas = await handleAlbums(albums);
@@ -163,10 +163,10 @@ const main = async () => {
 // main();
 
 const rule = new schedule.RecurrenceRule();
-rule.hour = [2, 13];
+rule.hour = [2, 13, 17, 21];
 rule.minute = [0];
 rule.second = [0];
-schedule.scheduleJob(rule, async () => {
+schedule.scheduleJob(rule, async() => {
     index = 0;
     console.log("重启时间", new Date());
     await main();

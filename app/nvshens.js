@@ -339,8 +339,8 @@ const getAllTags = async(url) => {
 
 const init = async() => {
     const tags = await getAllTags(GALLERY);
-    console.log(tags);
-    let i = 78;
+    let i = 0;
+    console.log(tags[i]);
     while (i < tags.length) {
         let url = NVSHEN + tags[i];
         await main(url, url);
