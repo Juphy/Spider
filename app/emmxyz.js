@@ -163,7 +163,7 @@ const main = async() => {
 // main();
 
 const rule = new schedule.RecurrenceRule();
-rule.hour = [2, 13, 17, 21];
+rule.hour = [2, 13];
 rule.minute = [0];
 rule.second = [0];
 schedule.scheduleJob(rule, async() => {

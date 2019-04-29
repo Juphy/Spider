@@ -1,7 +1,7 @@
 let request = require("request-promise"),
     schedule = require('node-schedule'),
     cheerio = require("cheerio");
-let { URL_BING: BING } = require("../config");
+let { URL_BING: URL, BING_API: API, BING: BING } = require("../config");
 let weibo = require("../main");
 
 const {
@@ -15,7 +15,7 @@ const getPerPage = async() => {
     let html;
     try {
         html = await request({
-            url: BING + "/?p=" + index
+            url: URL + "/?p=" + index
         });
         let $ = await cheerio.load(html);
         if ($('.container .item .card').html()) {
@@ -82,11 +82,57 @@ let main = async() => {
 
 // main();
 
+let refresh = async() => {
+    let datas = await request({
+        url: 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=8',
+        transform: data => {
+            data = JSON.parse(data);
+            return data['images']
+        }
+    });
+    console.log(typeof datas);
+    let i = 0;
+    while (i < datas.length) {
+        let data = datas[i],
+            url = BING + data.urlbase + '_1920x1080.jpg';
+        let bing = await Bing.findOne({
+            where: {
+                name: data['copyright']
+            }
+        });
+        if (!bing) {
+            let result;
+            try {
+                result = await weibo.uploadImg(url)
+            } catch (e) {
+                console.log('cookie error', result)
+                weibo.TASK && weibo.TASK.cancel();
+                await weibo.loginto();
+                result = await weibo.uploadImg(img.url);
+            }
+            let date = data.enddate;
+            await Bing.create({
+                name: data.copyright,
+                width: 1920,
+                height: 1080,
+                url: url,
+                sina_url: result && result.pid ? `http://ww1.sinaimg.cn/large/${result.pid}.jpg` : '',
+                day: date.slice(0, 4) + '-' + date.slice(4, 6) + '-' + date.slice(6),
+            });
+        } else {
+            bing.update({
+                url: url
+            })
+        }
+        i++;
+    }
+}
+
 const rule = new schedule.RecurrenceRule();
-rule.hour = [0, 6, 12, 18, 23];
+rule.hour = [0, 6];
 rule.minute = [0];
 rule.second = [0];
 schedule.scheduleJob(rule, async() => {
     console.log("重启时间", new Date());
-    await main();
+    await refresh();
 })
