@@ -12,9 +12,10 @@ const {
 let keys = ['推女郎', '性感', '车模', '美腿', "美女", 'beauty', 'sexy', 'girl', 'BingEverydayWallpaperPicture'];
 
 let i = 0; // keys的索引
-let page = 0, pagesize = 20;
+let page = 0,
+    pagesize = 20;
 
-const handleImages = async (images) => {
+const handleImages = async(images) => {
     let j = 0;
     while (j < images.length) {
         let img = images[j];
@@ -38,7 +39,7 @@ const handleImages = async (images) => {
                 try {
                     result = await weibo.uploadImg(`${UPLOADBETA}/_s/${img.url}`);
                 } catch (e) {
-                    console.log("上传图片报错", e);
+                    console.log("报错", new Date());
                 } finally {
                     photo = await Photo.create({
                         name: img.title,
@@ -63,7 +64,7 @@ const handleImages = async (images) => {
     }
 }
 
-const getImages = async () => {
+const getImages = async() => {
     let images = await request({
         url: `https://uploadbeta.com/api/pictures/search/?key=${encodeURI(keys[i])}&start=${page * pagesize}&offset=${pagesize}`
     });
@@ -76,7 +77,7 @@ const getImages = async () => {
 }
 
 
-const main = async (n) => {
+const main = async(n) => {
     while (i < keys.length) {
         await getImages();
         page = 0;
@@ -95,7 +96,7 @@ const rule = new schedule.RecurrenceRule();
 rule.hour = [1, 12];
 rule.minute = [0];
 rule.second = [0];
-schedule.scheduleJob(rule, async () => {
+schedule.scheduleJob(rule, async() => {
     i = 0;
     page = 0;
     console.log("重启时间", new Date());

@@ -116,7 +116,7 @@ let refresh = async() => {
                 width: 1920,
                 height: 1080,
                 url: url,
-                sina_url: result && result.pid ? `http://ww1.sinaimg.cn/large/${result.pid}.jpg` : '',
+                sina_url: (result && result.pid) ? `http://ww1.sinaimg.cn/large/${result.pid}.jpg` : '',
                 day: date.slice(0, 4) + '-' + date.slice(4, 6) + '-' + date.slice(6),
             });
         } else {
