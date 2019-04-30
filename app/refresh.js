@@ -65,6 +65,7 @@ const Op = Sequelize.Op;
                     url: img.url
                 })
             }
+            await img.destroy();
         }
         i++;
     }
