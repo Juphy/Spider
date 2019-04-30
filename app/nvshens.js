@@ -15,7 +15,7 @@ let index = 1; // 自增页数
 let number = 0; // 用于计数，超过5000休息两小时
 
 // 获取相册
-const getAlbum = async (url) => {
+const getAlbum = async(url) => {
     let $;
     let albums = [];
     try {
@@ -52,7 +52,7 @@ const getAlbum = async (url) => {
 }
 
 // 处理相册
-const handleAlbums = async (albums) => {
+const handleAlbums = async(albums) => {
     const datas = [];
     // 以下方法强行同步，以便读表与写表
     let i = 0;
@@ -80,7 +80,7 @@ const handleAlbums = async (albums) => {
         });
         let tags = [];
         if ($('#hgallery').html()) {
-            $('#utag li a').each(async (i, ele) => {
+            $('#utag li a').each(async(i, ele) => {
                 tags.push($(ele).text());
             })
         }
@@ -118,12 +118,11 @@ const handleAlbums = async (albums) => {
             await album.update({
                 tags: tags
             })
-            // number++;
-            // datas.push({
-            //     album_url: album.album_url,
-            //     album_id: album.id,
-            //     album_name: album.name
-            // })
+            datas.push({
+                album_url: album.album_url,
+                album_id: album.id,
+                album_name: album.name
+            })
         }
         i++;
     }
@@ -131,10 +130,10 @@ const handleAlbums = async (albums) => {
 }
 
 // 获取分页图片合集
-const getPage = async (album_url) => {
+const getPage = async(album_url) => {
     let imgs = [],
         index = 1;
-    let fn = async (url) => {
+    let fn = async(url) => {
         let $;
         try {
             $ = await request({
@@ -153,7 +152,7 @@ const getPage = async (album_url) => {
                 }
             });
             if ($('#hgallery').html()) {
-                $("#hgallery").children().each(async (i, ele) => {
+                $("#hgallery").children().each(async(i, ele) => {
                     imgs.push({
                         name: $(ele).attr('alt'),
                         src: $(ele).attr("src"),
@@ -170,7 +169,7 @@ const getPage = async (album_url) => {
     return imgs;
 }
 
-const getImgs = async (datas) => {
+const getImgs = async(datas) => {
     // 用forEach循环，并发操作
     // datas.forEach(async item => {
     //     let images = await getPage(item.album_url);
@@ -250,47 +249,47 @@ const getImgs = async (datas) => {
         let i = 0;
         while (i < images.length) {
             let img = images[i];
-            // let image = await Image.findOne({
-            //     where: {
-            //         name: img.name
-            //     }
-            // });
-            // if (!image) {
-            let result;
-            try {
-                result = await weibo.uploadImg(img.src);
-            } catch (e) {
-                console.log('cookie error', result);
-                weibo.TASK && weibo.TASK.cancel();
-                await weibo.loginto();
-                result = await weibo.uploadImg(img.src);
-            }
-            if (result.pid && result.width && result.height) {
-                number++;
-                await Image1.create({
-                    name: img.name,
-                    album_id: item.album_id,
-                    width: result.width,
-                    height: result.height,
-                    album_name: item.album_name,
-                    sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
-                    url: img.src
-                }).catch(err => {
-                    console.log(err);
+            let image = await Image.findOne({
+                where: {
+                    name: img.name
+                }
+            });
+            if (!image) {
+                let result;
+                try {
+                    result = await weibo.uploadImg(img.src);
+                } catch (e) {
+                    console.log('cookie error', result);
+                    weibo.TASK && weibo.TASK.cancel();
+                    await weibo.loginto();
+                    result = await weibo.uploadImg(img.src);
+                }
+                if (result.pid && result.width && result.height) {
+                    number++;
+                    await Image1.create({
+                        name: img.name,
+                        album_id: item.album_id,
+                        width: result.width,
+                        height: result.height,
+                        album_name: item.album_name,
+                        sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
+                        url: img.src
+                    }).catch(err => {
+                        console.log(err);
+                    })
+                }
+            } else {
+                await image.update({
+                    tags: img.tags
                 })
             }
-            // } else {
-            //     await image.update({
-            //         tags: img.tags
-            //     })
-            // }
             i++;
         };
         n++;
     }
 }
 
-const main = async (url, URL) => {
+const main = async(url, URL) => {
     const albums = await getAlbum(url);
     // if (albums.length && number <= 20) {
     if (albums.length) {
@@ -301,7 +300,7 @@ const main = async (url, URL) => {
     }
 }
 
-const getAllTags = async (url) => {
+const getAllTags = async(url) => {
     let tags = [];
     try {
         let $ = await request({
@@ -319,7 +318,7 @@ const getAllTags = async (url) => {
             }
         });
         if ($ && $('.tag_div').html()) {
-            $('.tag_div ul li a').each(async (i, item) => {
+            $('.tag_div ul li a').each(async(i, item) => {
                 tags.push($(item).attr('href'));
             });
         }
@@ -331,9 +330,9 @@ const getAllTags = async (url) => {
 }
 
 
-const init = async () => {
+const init = async() => {
     const tags = await getAllTags(GALLERY);
-    let i = 17;
+    let i = 0;
     while (i < tags.length) {
         console.log(i, tags[i]);
         let url = NVSHEN + tags[i];

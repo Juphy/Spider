@@ -84,13 +84,12 @@ let main = async() => {
 
 let refresh = async() => {
     let datas = await request({
-        url: 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=8',
+        url: 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=8&mkt=zh-CN',
         transform: data => {
             data = JSON.parse(data);
             return data['images']
         }
     });
-    console.log(typeof datas);
     let i = 0;
     while (i < datas.length) {
         let data = datas[i],
@@ -121,7 +120,8 @@ let refresh = async() => {
             });
         } else {
             bing.update({
-                url: url
+                url: url,
+                name: data.copyright
             })
         }
         i++;
