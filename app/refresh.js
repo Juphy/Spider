@@ -1,5 +1,7 @@
 let {
-    Album
+    Album,
+    Image,
+    Image1
 } = require("../lib/model");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -38,3 +40,32 @@ const Op = Sequelize.Op;
 //         i++;
 //     }
 // })()
+(async() => {
+    let i = 0;
+    while (i < 68380) {
+        let img = await Image1.findOne({
+            where: {
+                id: i
+            }
+        });
+        if (img) {
+            let _img = await Image.findOne({
+                where: {
+                    name: img.name
+                }
+            });
+            if (!_img) {
+                await Image.create({
+                    name: img.name,
+                    album_id: img.album_id,
+                    width: img.width,
+                    height: img.height,
+                    album_name: img.album_name,
+                    sina_url: img.sina_url,
+                    url: img.url
+                })
+            }
+        }
+        i++;
+    }
+})()

@@ -14,4 +14,4 @@ looking for beauty.
 已注释代码中的emmxyz.js的cpu及mem是目前运行代码的2倍。
 
 ### nvshens
-爬取60k+，爬取页面返回403，，应该是IP被封。
+爬取60k+，爬取页面返回403，，应该是IP被封。Google Cloud将静态IP换成临时IP，每次重启就会生成新的临时IP。
