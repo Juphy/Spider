@@ -287,8 +287,8 @@ const getImgs = async(datas) => {
 
 const main = async(url, URL) => {
     const albums = await getAlbum(url);
-    // if (albums.length && number <= 20) {
-    if (albums.length) {
+    if (albums.length && index <= 20) {
+        // if (albums.length) {
         const datas = await handleAlbums(albums);
         await getImgs(datas);
         index++;
@@ -327,7 +327,7 @@ const getAllTags = async(url) => {
 
 const init = async() => {
     const tags = await getAllTags(GALLERY);
-    let i = 16;
+    let i = 17;
     while (i < tags.length) {
         console.log(i, tags[i]);
         let url = NVSHEN + tags[i];
@@ -352,6 +352,7 @@ init();
 // rule.hour = [3, 14];
 // rule.minute = [0];
 // rule.second = [0];
-// schedule.scheduleJob(rule, async () => {
-//     await init();
+// schedule.scheduleJob(rule, async() => {
+//     number = 0;
+//     await main();
 // })
