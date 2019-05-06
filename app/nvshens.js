@@ -1,7 +1,7 @@
 let cheerio = require('cheerio'),
     schedule = require('node-schedule'),
     request = require("request-promise"),
-    { URL_GALLERY: GALLERY, URL_NVSHEN: NVSHEN, COOKIE } = require('../config');
+    { URL_GALLERY: GALLERY, URL_NVSHEN: NVSHEN, COOKIE, HOST } = require('../config');
 
 let weibo = require("../main");
 
@@ -22,9 +22,8 @@ const getAlbum = async(url) => {
             url: url,
             headers: {
                 "Connection": "keep-alive",
-                "Cookie": COOKIE,
                 "DNT": 1,
-                "Host": "www.nvshens.com",
+                "Host": HOST,
                 "Referer": GALLERY,
                 "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit/ 537.36(KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36"
             },
@@ -66,9 +65,8 @@ const handleAlbums = async(albums) => {
             url: NVSHEN + item.album_url,
             headers: {
                 "Connection": "keep-alive",
-                'Cookie': COOKIE,
                 DNT: 1,
-                Host: "www.nvshens.com",
+                Host: HOST,
                 Pragma: "no-cache",
                 Referer: GALLERY,
                 "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
@@ -139,9 +137,8 @@ const getPage = async(album_url) => {
                 url: url,
                 headers: {
                     "Connection": "keep-alive",
-                    'Cookie': COOKIE,
                     DNT: 1,
-                    Host: "www.nvshens.com",
+                    Host: HOST,
                     Pragma: "no-cache",
                     Referer: GALLERY,
                     "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
@@ -158,13 +155,13 @@ const getPage = async(album_url) => {
                     })
                 });
                 index++;
-                await fn(NVSHEN + album_url + `/${index}.html`);
+                await fn(album_url + `/${index}.html`);
             }
         } catch (e) {
             console.log(e);
         }
     };
-    await fn(NVSHEN + album_url);
+    await fn(album_url);
     return imgs;
 }
 
@@ -306,9 +303,8 @@ const getAllTags = async(url) => {
             url: url,
             headers: {
                 "Connection": "keep-alive",
-                "Cookie": COOKIE,
                 "DNT": 1,
-                "Host": "www.nvshens.com",
+                "Host": HOST,
                 "Referer": GALLERY,
                 "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit/ 537.36(KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36"
             },
