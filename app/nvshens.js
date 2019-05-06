@@ -38,7 +38,7 @@ const getAlbum = async(url) => {
                     cover = $(item).find('.galleryli_link img').attr("data-original");
                 albums.push({
                     name: title,
-                    album_url: link,
+                    album_url: NVSHEN + link,
                     url: cover
                 })
             });
@@ -62,7 +62,7 @@ const handleAlbums = async(albums) => {
             }
         });
         let $ = await request({
-            url: NVSHEN + item.album_url,
+            url: item.album_url,
             headers: {
                 "Connection": "keep-alive",
                 DNT: 1,
@@ -95,7 +95,7 @@ const handleAlbums = async(albums) => {
             if (result.pid && result.width && result.height) {
                 album = await Album.create({
                     name: item.name,
-                    album_url: NVSHEN + item.album_url,
+                    album_url: item.album_url,
                     url: item.url,
                     sina_url: `https://ww1.sinaimg.cn/large/${result.pid}.jpg`,
                     width: result.width,
@@ -155,7 +155,7 @@ const getPage = async(album_url) => {
                     })
                 });
                 index++;
-                await fn(album_url + `/${index}.html`);
+                await fn(album_url + `${index}.html`);
             }
         } catch (e) {
             console.log(e);
@@ -327,7 +327,7 @@ const getAllTags = async(url) => {
 
 const init = async() => {
     const tags = await getAllTags(GALLERY);
-    let i = 0;
+    let i = 16;
     while (i < tags.length) {
         console.log(i, tags[i]);
         let url = NVSHEN + tags[i];
