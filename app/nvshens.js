@@ -7,8 +7,7 @@ let weibo = require("../main");
 
 const {
     Image,
-    Album,
-    Image1
+    Album
 } = require("../lib/model");
 
 let index = 1; // 自增页数
@@ -100,7 +99,7 @@ const handleAlbums = async(albums) => {
                     name: item.name,
                     album_url: NVSHEN + item.album_url,
                     url: item.url,
-                    sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
+                    sina_url: `https://ww1.sinaimg.cn/large/${result.pid}.jpg`,
                     width: result.width,
                     height: result.height,
                     create_time: new Date(),
@@ -266,13 +265,13 @@ const getImgs = async(datas) => {
                 }
                 if (result.pid && result.width && result.height) {
                     number++;
-                    await Image1.create({
+                    await Image.create({
                         name: img.name,
                         album_id: item.album_id,
                         width: result.width,
                         height: result.height,
                         album_name: item.album_name,
-                        sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
+                        sina_url: `https://ww1.sinaimg.cn/large/${result.pid}.jpg`,
                         url: img.src
                     }).catch(err => {
                         console.log(err);
@@ -338,14 +337,14 @@ const init = async() => {
         let url = NVSHEN + tags[i];
         await main(url, url);
         index = 1;
-        // if (number > 3000) {
-        //     await new Promise((resolve, reject) => {
-        //         setTimeout(() => {
-        //             number = 0;
-        //             resolve(null);
-        //         }, 60 * 60 * 1000);
-        //     });
-        // }
+        if (number > 3000) {
+            await new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    number = 0;
+                    resolve(null);
+                }, 60 * 60 * 1000);
+            });
+        }
         number = 0;
         i++;
     }
