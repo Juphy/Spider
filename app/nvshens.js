@@ -99,7 +99,6 @@ const handleAlbums = async(albums) => {
                     height: result.height,
                     create_time: new Date(),
                     category: 'nvshens',
-                    table: "web_images1",
                     tags: tags
                 }
             });
