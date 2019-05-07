@@ -79,43 +79,43 @@ const handleAlbums = async(albums) => {
 
         let result;
         try {
-            result = await weibo.uploadImg(item.url);
+            // result = await weibo.uploadImg(item.url);
         } catch (e) {
-            console.log('cookie error', result)
-            weibo.TASK && weibo.TASK.cancel();
-            await weibo.loginto();
-            result = await weibo.uploadImg(item.url);
+            // console.log('cookie error', result)
+            // weibo.TASK && weibo.TASK.cancel();
+            // await weibo.loginto();
+            // result = await weibo.uploadImg(item.url);
         }
-        if (result.pid && result.width && result.height) {
-            let _album = await Album.findOrCreate({
-                where: {
-                    name: item.name
-                },
-                defaults: {
-                    album_url: item.album_url,
-                    url: item.url,
-                    sina_url: `https://ww1.sinaimg.cn/large/${result.pid}.jpg`,
-                    width: result.width,
-                    height: result.height,
-                    create_time: new Date(),
-                    category: 'nvshens',
-                    tags: tags
-                }
-            });
-            let album = _album[0];
-            if (_album[1]) {
-                await album.update({
-                    tags: tags
-                })
-            }
-            datas.push({
+
+        let _album = await Album.findOrCreate({
+            where: {
+                name: item.name
+            },
+            defaults: {
                 album_url: item.album_url,
-                album_id: album.id,
-                album_name: album.name
+                url: item.url,
+                // sina_url: result && result.pid ? `https://ww1.sinaimg.cn/large/${result.pid}.jpg` : '',
+                // width: result && result.width ? result.width : '',
+                // height: result && result.height ? result.height : '',
+                create_time: new Date(),
+                category: 'nvshens',
+                tags: tags
+            }
+        });
+        let album = _album[0];
+        if (_album[1]) {
+            await album.update({
+                tags: tags
             })
         }
+        datas.push({
+            album_url: item.album_url,
+            album_id: album.id,
+            album_name: album.name
+        })
         i++;
     }
+    console.log(datas);
     return datas;
 }
 
@@ -129,7 +129,9 @@ const getPage = async(album_url) => {
             $ = await request({
                 url: url,
                 headers: {
-                    "Connection": "keep-alive",
+                    Cookie: COOKIE,
+                    Connection: "keep-alive",
+                    "Cache-Control": "no-cache",
                     DNT: 1,
                     Host: HOST,
                     Pragma: "no-cache",
@@ -169,29 +171,27 @@ const getImgs = async(datas) => {
             let img = images[i];
             let result;
             try {
-                result = await weibo.uploadImg(img.src);
+                // result = await weibo.uploadImg(img.src);
             } catch (e) {
-                console.log('cookie error', result);
-                weibo.TASK && weibo.TASK.cancel();
-                await weibo.loginto();
-                result = await weibo.uploadImg(img.src);
+                // console.log('cookie error', result);
+                // weibo.TASK && weibo.TASK.cancel();
+                // await weibo.loginto();
+                // result = await weibo.uploadImg(img.src);
             }
-            if (result.pid && result.width && result.height) {
-                number++;
-                let image = await Image.findOrCreate({
-                    where: { name: img.name },
-                    defaults: {
-                        album_id: item.album_id,
-                        width: result.width,
-                        height: result.height,
-                        album_name: item.album_name,
-                        sina_url: `https://ww1.sinaimg.cn/large/${result.pid}.jpg`,
-                        url: img.src
-                    }
-                }).catch(err => {
-                    console.log(err);
-                });
-            }
+            number++;
+            await Image.findOrCreate({
+                where: { name: img.name },
+                defaults: {
+                    album_id: item.album_id,
+                    // sina_url: result && result.pid ? `https://ww1.sinaimg.cn/large/${result.pid}.jpg` : '',
+                    // width: result && result.width ? result.width : '',
+                    // height: result && result.height ? result.height : '',
+                    album_name: item.album_name,
+                    url: img.src
+                }
+            }).catch(err => {
+                console.log(err);
+            });
             i++;
         };
         n++;
@@ -200,7 +200,7 @@ const getImgs = async(datas) => {
 
 const main = async(url, URL) => {
     const albums = await getAlbum(url);
-    if (albums.length && index <= 20) {
+    if (albums.length && index <= 50) {
         // if (albums.length) {
         const datas = await handleAlbums(albums);
         await getImgs(datas);
