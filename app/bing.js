@@ -133,6 +133,6 @@ rule.hour = [0, 6];
 rule.minute = [0];
 rule.second = [0];
 schedule.scheduleJob(rule, async() => {
-    console.log("重启时间", new Date());
+    console.log("重启时间", new Date().toLocaleString());
     await refresh();
 })

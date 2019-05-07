@@ -99,6 +99,6 @@ rule.second = [0];
 schedule.scheduleJob(rule, async() => {
     i = 0;
     page = 0;
-    console.log("重启时间", new Date());
+    console.log("重启时间", new Date().toLocaleString());
     await main(1);
 })
