@@ -14,7 +14,7 @@ let index = 1; // 自增页数
 let number = 0; // 用于计数，超过5000休息两小时
 
 // 获取相册
-const getAlbum = async (url) => {
+const getAlbum = async(url) => {
     let $;
     let albums = [];
     try {
@@ -50,7 +50,7 @@ const getAlbum = async (url) => {
 }
 
 // 处理相册
-const handleAlbums = async (albums) => {
+const handleAlbums = async(albums) => {
     const datas = [];
     // 以下方法强行同步，以便读表与写表
     let i = 0;
@@ -72,7 +72,7 @@ const handleAlbums = async (albums) => {
         });
         let tags = [];
         if ($('#hgallery').html()) {
-            $('#utag li a').each(async (i, ele) => {
+            $('#utag li a').each(async(i, ele) => {
                 tags.push($(ele).text());
             })
         }
@@ -119,10 +119,10 @@ const handleAlbums = async (albums) => {
 }
 
 // 获取分页图片合集
-const getPage = async (album_url) => {
+const getPage = async(album_url) => {
     let imgs = [],
         index = 1;
-    let fn = async (url) => {
+    let fn = async(url) => {
         let $;
         try {
             $ = await request({
@@ -142,7 +142,7 @@ const getPage = async (album_url) => {
                 }
             });
             if ($('#hgallery').html()) {
-                $("#hgallery").children().each(async (i, ele) => {
+                $("#hgallery").children().each(async(i, ele) => {
                     imgs.push({
                         name: $(ele).attr('alt'),
                         src: $(ele).attr("src"),
@@ -152,14 +152,14 @@ const getPage = async (album_url) => {
                 await fn(album_url + `${index}.html`);
             }
         } catch (e) {
-            console.log(e);
+            console.log(3, e);
         }
     };
     await fn(album_url);
     return imgs;
 }
 
-const getImgs = async (datas) => {
+const getImgs = async(datas) => {
     // 同步操作
     let n = 0;
     while (n < datas.length) {
@@ -197,7 +197,7 @@ const getImgs = async (datas) => {
     }
 }
 
-const main = async (url, URL) => {
+const main = async(url, URL) => {
     const albums = await getAlbum(url);
     if (albums.length && index <= 50) {
         // if (albums.length) {
@@ -210,7 +210,7 @@ const main = async (url, URL) => {
     }
 }
 
-const getAllTags = async (url) => {
+const getAllTags = async(url) => {
     let tags = [];
     try {
         let $ = await request({
@@ -227,7 +227,7 @@ const getAllTags = async (url) => {
             }
         });
         if ($ && $('.tag_div').html()) {
-            $('.tag_div ul li a').each(async (i, item) => {
+            $('.tag_div ul li a').each(async(i, item) => {
                 tags.push($(item).attr('href'));
             });
         }
@@ -239,7 +239,7 @@ const getAllTags = async (url) => {
 }
 
 
-const init = async () => {
+const init = async() => {
     const tags = await getAllTags(GALLERY);
     let i = 17;
     while (i < tags.length) {
@@ -273,24 +273,30 @@ const init = async () => {
 
 
 
-const foo = async () => {
-    let i = 11016;
+const foo = async() => {
+    let i = 11810;
     while (i < 40000) {
-        let album_url = NVSHEN + '/g/' + i + '/', url;
-        let $ = await request({
-            url: album_url,
-            headers: {
-                Connection: "keep-alive",
-                DNT: 1,
-                Host: HOST,
-                Pragma: "no-cache",
-                Referer: GALLERY,
-                "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
-            },
-            transform: body => {
-                return cheerio.load(body);
-            }
-        });
+        let album_url = NVSHEN + '/g/' + i + '/',
+            url;
+        let $;
+        try {
+            $ = await request({
+                url: album_url,
+                headers: {
+                    Connection: "keep-alive",
+                    DNT: 1,
+                    Host: HOST,
+                    Pragma: "no-cache",
+                    Referer: GALLERY,
+                    "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
+                },
+                transform: body => {
+                    return cheerio.load(body);
+                }
+            });
+        } catch (error) {
+            console.log(1, error);
+        }
         if ($('#hgallery').html()) {
             let album_name = $('#htilte').text();
             let album = await Album.findOne({
@@ -299,29 +305,35 @@ const foo = async () => {
                 }
             });
             if (!album) {
-                let tags = [], albums_url;
+                let tags = [],
+                    albums_url;
                 if ($('#hgallery').html()) {
-                    $('#utag li a').each(async (i, ele) => {
+                    $('#utag li a').each(async(i, ele) => {
                         if (i === 0) {
                             albums_url = NVSHEN + $(ele).attr('href') + 'album/';
                         }
                         tags.push($(ele).text());
                     })
                 }
-                let _$ = await request({
-                    url: albums_url,
-                    headers: {
-                        Connection: "keep-alive",
-                        DNT: 1,
-                        Host: HOST,
-                        Pragma: "no-cache",
-                        Referer: GALLERY,
-                        "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
-                    },
-                    transform: body => {
-                        return cheerio.load(body);
-                    }
-                });
+                let _$;
+                try {
+                    _$ = await request({
+                        url: albums_url,
+                        headers: {
+                            Connection: "keep-alive",
+                            DNT: 1,
+                            Host: HOST,
+                            Pragma: "no-cache",
+                            Referer: GALLERY,
+                            "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
+                        },
+                        transform: body => {
+                            return cheerio.load(body);
+                        }
+                    });
+                } catch (error) {
+                    console.log('2', error)
+                }
                 if (_$('#photo_list ul').html()) {
                     _$('#photo_list ul li').each((i, item) => {
                         let title = $(item).find('.igalleryli_link img').attr("alt"),
@@ -338,25 +350,45 @@ const foo = async () => {
                         category: 'nvshens',
                         tags: tags
                     });
-                }
-            }
-            const images = await getPage(album_url);
-            let j = 0;
-            while (j < images.length) {
-                let img = images[j];
-                await Image.findOrCreate({
-                    where: {
-                        name: img.name
-                    },
-                    defaults: {
-                        album_id: album.id,
-                        album_name: album_name,
-                        url: img.src
+                    const images = await getPage(album_url);
+                    let j = 0;
+                    while (j < images.length) {
+                        let img = images[j];
+                        await Image.findOrCreate({
+                            where: {
+                                name: img.name
+                            },
+                            defaults: {
+                                album_id: album.id,
+                                album_name: album_name,
+                                url: img.src
+                            }
+                        });
+                        j++;
                     }
-                });
-                j++;
+                    console.log(i, album_name);
+                }
+            } else {
+                let album_url = album.album_url,
+                    album_name = album.name;
+                const images = await getPage(album_url);
+                let j = 0;
+                while (j < images.length) {
+                    let img = images[j];
+                    await Image.findOrCreate({
+                        where: {
+                            name: img.name
+                        },
+                        defaults: {
+                            album_id: album.id,
+                            album_name: album_name,
+                            url: img.src
+                        }
+                    });
+                    j++;
+                }
+                console.log(i, album_name);
             }
-            console.log(i, album_name);
         }
         i++;
     }
