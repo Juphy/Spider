@@ -115,7 +115,6 @@ const handleAlbums = async (albums) => {
         })
         i++;
     }
-    console.log(datas);
     return datas;
 }
 
@@ -263,20 +262,20 @@ const init = async () => {
 
 // init();
 // main(GALLERY, GALLERY);
-const rule = new schedule.RecurrenceRule();
-rule.hour = [3, 15];
-rule.minute = [0];
-rule.second = [0];
-schedule.scheduleJob(rule, async () => {
-    number = 0;
-    await main(GALLERY, GALLERY);
-})
+// const rule = new schedule.RecurrenceRule();
+// rule.hour = [3, 15];
+// rule.minute = [0];
+// rule.second = [0];
+// schedule.scheduleJob(rule, async () => {
+//     number = 0;
+//     await main(GALLERY, GALLERY);
+// })
 
 
 
 const foo = async () => {
-    let i = 10000;
-    while (i < 30000) {
+    let i = 11016;
+    while (i < 40000) {
         let album_url = NVSHEN + '/g/' + i + '/', url;
         let $ = await request({
             url: album_url,
