@@ -303,19 +303,19 @@ const foo = async() => {
                     name: album_name
                 }
             });
+            let tags = [],
+                albums_url,
+                _albums_url;
+            if ($('#hgallery').html()) {
+                $('#utag li a').each(async(i, ele) => {
+                    if (i === 0) {
+                        _albums_url = NVSHEN + $(ele).attr("href");
+                        albums_url = NVSHEN + $(ele).attr('href') + 'album/';
+                    }
+                    tags.push($(ele).text());
+                })
+            }
             if (!album) {
-                let tags = [],
-                    albums_url,
-                    _albums_url;
-                if ($('#hgallery').html()) {
-                    $('#utag li a').each(async(i, ele) => {
-                        if (i === 0) {
-                            _albums_url = NVSHEN + $(ele).attr("href");
-                            albums_url = NVSHEN + $(ele).attr('href') + 'album/';
-                        }
-                        tags.push($(ele).text());
-                    })
-                }
                 let _$;
                 try {
                     _$ = await request({
@@ -335,9 +335,9 @@ const foo = async() => {
                 }
                 if (_$('#photo_list ul').html()) {
                     _$('#photo_list ul li').each((i, item) => {
-                        let title = $(item).find('.igalleryli_link img').attr("alt"),
+                        let href = $(item).find('.igalleryli_link').attr("href"),
                             cover = $(item).find('.igalleryli_link img').attr("src");
-                        if (title === album_name) {
+                        if (href.includes(i)) {
                             url = cover;
                         }
                     })
@@ -383,8 +383,14 @@ const foo = async() => {
                     } catch (error) {
                         console.log('22', error)
                     }
-                    if (_$('#post').html()) {
-                        let url = _$('#post .infoleft_imgdiv .imglink').attr('href');
+                    if (_$('.photo_entry').html()) {
+                        _$('.photo_entry ul li').each((i, item) => {
+                            let href = $(item).find('.igalleryli_link').attr("href"),
+                                cover = $(item).find('.igalleryli_link img').attr("src");
+                            if (href.includes(i)) {
+                                url = cover;
+                            }
+                        })
                         album = await Album.create({
                             name: album_name,
                             album_url: album_url,
@@ -413,6 +419,66 @@ const foo = async() => {
                     }
                 }
             } else {
+                let _$;
+                try {
+                    _$ = await request({
+                        url: albums_url,
+                        headers: {
+                            Cookie: COOKIE,
+                            Host: HOST,
+                            Referer: GALLERY,
+                            "User-Agent": "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
+                        },
+                        transform: body => {
+                            return cheerio.load(body);
+                        }
+                    });
+                } catch (error) {
+                    console.log('2', error)
+                }
+                if (_$('#photo_list ul').html()) {
+                    _$('#photo_list ul li').each((i, item) => {
+                        let href = $(item).find('.igalleryli_link').attr("href"),
+                            cover = $(item).find('.igalleryli_link img').attr("src");
+                        if (href.includes(i)) {
+                            url = cover;
+                        }
+                    })
+                    await album.update({
+                        url: url,
+                        tags: tags
+                    });
+                } else {
+                    try {
+                        _$ = await request({
+                            url: _albums_url,
+                            headers: {
+                                Cookie: COOKIE,
+                                Host: HOST,
+                                Referer: GALLERY,
+                                "User-Agent": "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
+                            },
+                            transform: body => {
+                                return cheerio.load(body);
+                            }
+                        });
+                    } catch (error) {
+                        console.log('22', error)
+                    }
+                    if (_$('.photo_entry').html()) {
+                        _$('.photo_entry ul li').each((i, item) => {
+                            let href = $(item).find('.igalleryli_link').attr("href"),
+                                cover = $(item).find('.igalleryli_link img').attr("src");
+                            if (href.includes(i)) {
+                                url = cover;
+                            }
+                        })
+                        await album.update({
+                            url: url,
+                            tags: tags
+                        })
+                    }
+                }
                 let album_url = album.album_url,
                     album_name = album.name;
                 const images = await getPage(album_url);
