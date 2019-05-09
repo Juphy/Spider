@@ -375,12 +375,12 @@ const foo = async() => {
                     url: url,
                     create_time: new Date(),
                     category: 'nvshens',
-                    tags: tags
+                    tags: [...new Set(tags)]
                 });
             } else {
                 await album.update({
                     url: url,
-                    tags: tags
+                    tags: [...new Set(tags)]
                 });
             }
         }
