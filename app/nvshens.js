@@ -272,10 +272,10 @@ const init = async() => {
 // })
 
 const foo = async() => {
-    let i = 10000,
+    let INDEX = 10000,
         number = 0;
-    while (i < 30000) {
-        let album_url = NVSHEN + '/g/' + i + '/',
+    while (INDEX < 30000) {
+        let album_url = NVSHEN + '/g/' + INDEX + '/',
             $;
         try {
             $ = await request({
@@ -332,15 +332,16 @@ const foo = async() => {
                 console.log('2', error)
             }
             if (_$('#photo_list ul').html()) {
-                _$('#photo_list ul li').each((i, item) => {
+                _$('#photo_list ul li').each((ind, item) => {
                     let href = $(item).find('.igalleryli_link').attr("href"),
                         cover = $(item).find('.igalleryli_link img').attr("src");
-                    if (href.includes(i)) {
+                    if (href.includes(INDEX)) {
                         url = cover;
                     }
                 })
 
             } else {
+                let _$;
                 try {
                     _$ = await request({
                         url: _albums_url,
@@ -355,13 +356,13 @@ const foo = async() => {
                         }
                     });
                 } catch (error) {
-                    console.log('22', error)
+                    console.log('3', error)
                 }
-                if (_$('.photo_entry').html()) {
-                    _$('.photo_entry ul li').each((i, item) => {
+                if (_$('.photo_ul').html()) {
+                    _$('.photo_ul li').each((ind, item) => {
                         let href = $(item).find('.igalleryli_link').attr("href"),
-                            cover = $(item).find('.igalleryli_link img').attr("src");
-                        if (href.includes(i)) {
+                            cover = $(item).find('.igalleryli_link img').attr("data-original");
+                        if (href.includes(INDEX)) {
                             url = cover;
                         }
                     })
@@ -413,7 +414,7 @@ const foo = async() => {
                 });
                 j++;
             }
-            console.log(i, album_name);
+            console.log(INDEX, album_name);
             number++
         }
         if (number >= 1000) {
@@ -424,7 +425,7 @@ const foo = async() => {
                 }, 60 * 60 * 1000);
             });
         }
-        i++;
+        INDEX++;
     }
 }
 foo();
