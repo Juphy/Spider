@@ -277,7 +277,7 @@ const init = async() => {
 const foo = async() => {
     let i = 10000,
         number = 0;
-    while (i === 13449) {
+    while (i < 30000) {
         let album_url = NVSHEN + '/g/' + i + '/',
             url;
         let $;
