@@ -1,4 +1,4 @@
-let cheerio = require('cheerio'),
+﻿let cheerio = require('cheerio'),
     schedule = require('node-schedule'),
     request = require("request-promise"),
     { URL_GALLERY: GALLERY, URL_NVSHEN: NVSHEN, COOKIE, HOST } = require('../config');
@@ -274,7 +274,7 @@ const init = async() => {
 
 
 const foo = async() => {
-    let i = 11810;
+    let i = 12396;
     while (i < 40000) {
         let album_url = NVSHEN + '/g/' + i + '/',
             url;
@@ -283,11 +283,8 @@ const foo = async() => {
             $ = await request({
                 url: album_url,
                 headers: {
-                    Connection: "keep-alive",
-                    DNT: 1,
+                    Cookie: COOKIE,
                     Host: HOST,
-                    Pragma: "no-cache",
-                    Referer: GALLERY,
                     "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
                 },
                 transform: body => {
