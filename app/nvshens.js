@@ -14,7 +14,7 @@ let index = 1; // 自增页数
 let number = 0; // 用于计数，超过5000休息两小时
 
 // 获取相册
-const getAlbum = async(url) => {
+const getAlbum = async (url) => {
     let $;
     let albums = [];
     try {
@@ -50,7 +50,7 @@ const getAlbum = async(url) => {
 }
 
 // 处理相册
-const handleAlbums = async(albums) => {
+const handleAlbums = async (albums) => {
     const datas = [];
     // 以下方法强行同步，以便读表与写表
     let i = 0;
@@ -72,7 +72,7 @@ const handleAlbums = async(albums) => {
         });
         let tags = [];
         if ($('#hgallery').html()) {
-            $('#utag li a').each(async(i, ele) => {
+            $('#utag li a').each(async (i, ele) => {
                 tags.push($(ele).text());
             })
         }
@@ -119,10 +119,10 @@ const handleAlbums = async(albums) => {
 }
 
 // 获取分页图片合集
-const getPage = async(album_url) => {
+const getPage = async (album_url) => {
     let imgs = [],
         index = 1;
-    let fn = async(url) => {
+    let fn = async (url) => {
         let $;
         try {
             $ = await request({
@@ -142,7 +142,7 @@ const getPage = async(album_url) => {
                 }
             });
             if ($('#hgallery').html()) {
-                $("#hgallery").children().each(async(i, ele) => {
+                $("#hgallery").children().each(async (i, ele) => {
                     imgs.push({
                         name: $(ele).attr('alt'),
                         src: $(ele).attr("src"),
@@ -160,7 +160,7 @@ const getPage = async(album_url) => {
     return imgs;
 }
 
-const getImgs = async(datas) => {
+const getImgs = async (datas) => {
     // 同步操作
     let n = 0;
     while (n < datas.length) {
@@ -198,7 +198,7 @@ const getImgs = async(datas) => {
     }
 }
 
-const main = async(url, URL) => {
+const main = async (url, URL) => {
     const albums = await getAlbum(url);
     if (albums.length && index <= 50) {
         // if (albums.length) {
@@ -211,7 +211,7 @@ const main = async(url, URL) => {
     }
 }
 
-const getAllTags = async(url) => {
+const getAllTags = async (url) => {
     let tags = [];
     try {
         let $ = await request({
@@ -228,7 +228,7 @@ const getAllTags = async(url) => {
             }
         });
         if ($ && $('.tag_div').html()) {
-            $('.tag_div ul li a').each(async(i, item) => {
+            $('.tag_div ul li a').each(async (i, item) => {
                 tags.push($(item).attr('href'));
             });
         }
@@ -239,7 +239,7 @@ const getAllTags = async(url) => {
     return tags;
 }
 
-const init = async() => {
+const init = async () => {
     const tags = await getAllTags(GALLERY);
     let i = 17;
     while (i < tags.length) {
@@ -271,8 +271,8 @@ const init = async() => {
 //     await main(GALLERY, GALLERY);
 // })
 
-const foo = async() => {
-    let INDEX = 10000,
+const foo = async () => {
+    let INDEX = 12424,
         number = 0;
     while (INDEX < 30000) {
         let album_url = NVSHEN + '/g/' + INDEX + '/',
@@ -299,7 +299,7 @@ const foo = async() => {
             album_name,
             url;
         if ($ && $('#utag').html()) {
-            $('#utag li a').each(async(i, ele) => {
+            $('#utag li a').each(async (i, ele) => {
                 if (i === 0) {
                     _albums_url = NVSHEN + $(ele).attr("href");
                     albums_url = NVSHEN + $(ele).attr('href') + 'album/';
@@ -414,15 +414,16 @@ const foo = async() => {
                 });
                 j++;
             }
-            console.log(INDEX, album_name);
             number++
+            console.log(INDEX, album_name, number);
         }
-        if (number >= 1000) {
+        if (number > 1000) {
             await new Promise((resolve, reject) => {
                 setTimeout(() => {
                     number = 0;
+                    console.log(new Date().toLocaleString());
                     resolve(null);
-                }, 60 * 60 * 1000);
+                }, 1.5 * 60 * 60 * 1000);
             });
         }
         INDEX++;
