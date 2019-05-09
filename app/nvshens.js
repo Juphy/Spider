@@ -153,6 +153,7 @@ const getPage = async(album_url) => {
             }
         } catch (e) {
             console.log(3, e);
+            await fn(url);
         }
     };
     await fn(album_url);
@@ -274,9 +275,9 @@ const init = async() => {
 
 
 const foo = async() => {
-    let i = 12405,
+    let i = 10000,
         number = 0;
-    while (i < 40000) {
+    while (i === 13449) {
         let album_url = NVSHEN + '/g/' + i + '/',
             url;
         let $;
@@ -304,10 +305,12 @@ const foo = async() => {
             });
             if (!album) {
                 let tags = [],
-                    albums_url;
+                    albums_url,
+                    _albums_url;
                 if ($('#hgallery').html()) {
                     $('#utag li a').each(async(i, ele) => {
                         if (i === 0) {
+                            _albums_url = NVSHEN + $(ele).attr("href");
                             albums_url = NVSHEN + $(ele).attr('href') + 'album/';
                         }
                         tags.push($(ele).text());
@@ -363,6 +366,51 @@ const foo = async() => {
                         j++;
                     }
                     console.log(i, album_name);
+                } else {
+                    try {
+                        _$ = await request({
+                            url: _albums_url,
+                            headers: {
+                                Cookie: COOKIE,
+                                Host: HOST,
+                                Referer: GALLERY,
+                                "User-Agent": "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
+                            },
+                            transform: body => {
+                                return cheerio.load(body);
+                            }
+                        });
+                    } catch (error) {
+                        console.log('22', error)
+                    }
+                    if (_$('#post').html()) {
+                        let url = _$('#post .infoleft_imgdiv .imglink').attr('href');
+                        album = await Album.create({
+                            name: album_name,
+                            album_url: album_url,
+                            url: url,
+                            create_time: new Date(),
+                            category: 'nvshens',
+                            tags: tags
+                        })
+                        const images = await getPage(album_url);
+                        let j = 0;
+                        while (j < images.length) {
+                            let img = images[j];
+                            await Image.findOrCreate({
+                                where: {
+                                    name: img.name
+                                },
+                                defaults: {
+                                    album_id: album.id,
+                                    album_name: album_name,
+                                    url: img.src
+                                }
+                            });
+                            j++;
+                        }
+                        console.log(i, album_name);
+                    }
                 }
             } else {
                 let album_url = album.album_url,
