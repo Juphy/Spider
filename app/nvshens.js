@@ -239,7 +239,6 @@ const getAllTags = async(url) => {
     return tags;
 }
 
-
 const init = async() => {
     const tags = await getAllTags(GALLERY);
     let i = 17;
@@ -272,15 +271,12 @@ const init = async() => {
 //     await main(GALLERY, GALLERY);
 // })
 
-
-
 const foo = async() => {
     let i = 10000,
         number = 0;
     while (i < 30000) {
         let album_url = NVSHEN + '/g/' + i + '/',
-            url;
-        let $;
+            $;
         try {
             $ = await request({
                 url: album_url,
@@ -296,209 +292,128 @@ const foo = async() => {
         } catch (error) {
             console.log(1, error);
         }
-        if ($ && $('#hgallery').html()) {
-            let album_name = $('#htilte').text();
-            let album = await Album.findOne({
+        let tags = [],
+            albums_url,
+            _albums_url,
+            album,
+            album_name,
+            url;
+        if ($ && $('#utag').html()) {
+            $('#utag li a').each(async(i, ele) => {
+                if (i === 0) {
+                    _albums_url = NVSHEN + $(ele).attr("href");
+                    albums_url = NVSHEN + $(ele).attr('href') + 'album/';
+                }
+                if ($(ele).text() !== '') {
+                    tags.push($(ele).text());
+                }
+            })
+            album_name = $('#htilte').text();
+            album = await Album.findOne({
                 where: {
                     name: album_name
                 }
             });
-            let tags = [],
-                albums_url,
-                _albums_url;
-            if ($('#hgallery').html()) {
-                $('#utag li a').each(async(i, ele) => {
-                    if (i === 0) {
-                        _albums_url = NVSHEN + $(ele).attr("href");
-                        albums_url = NVSHEN + $(ele).attr('href') + 'album/';
+            let _$;
+            try {
+                _$ = await request({
+                    url: albums_url,
+                    headers: {
+                        Cookie: COOKIE,
+                        Host: HOST,
+                        Referer: GALLERY,
+                        "User-Agent": "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
+                    },
+                    transform: body => {
+                        return cheerio.load(body);
                     }
-                    tags.push($(ele).text());
+                });
+            } catch (error) {
+                console.log('2', error)
+            }
+            if (_$('#photo_list ul').html()) {
+                _$('#photo_list ul li').each((i, item) => {
+                    let href = $(item).find('.igalleryli_link').attr("href"),
+                        cover = $(item).find('.igalleryli_link img').attr("src");
+                    if (href.includes(i)) {
+                        url = cover;
+                    }
                 })
+
+            } else {
+                try {
+                    _$ = await request({
+                        url: _albums_url,
+                        headers: {
+                            Cookie: COOKIE,
+                            Host: HOST,
+                            Referer: GALLERY,
+                            "User-Agent": "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
+                        },
+                        transform: body => {
+                            return cheerio.load(body);
+                        }
+                    });
+                } catch (error) {
+                    console.log('22', error)
+                }
+                if (_$('.photo_entry').html()) {
+                    _$('.photo_entry ul li').each((i, item) => {
+                        let href = $(item).find('.igalleryli_link').attr("href"),
+                            cover = $(item).find('.igalleryli_link img').attr("src");
+                        if (href.includes(i)) {
+                            url = cover;
+                        }
+                    })
+                }
             }
             if (!album) {
-                let _$;
-                try {
-                    _$ = await request({
-                        url: albums_url,
-                        headers: {
-                            Cookie: COOKIE,
-                            Host: HOST,
-                            Referer: GALLERY,
-                            "User-Agent": "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
-                        },
-                        transform: body => {
-                            return cheerio.load(body);
-                        }
-                    });
-                } catch (error) {
-                    console.log('2', error)
-                }
-                if (_$('#photo_list ul').html()) {
-                    _$('#photo_list ul li').each((i, item) => {
-                        let href = $(item).find('.igalleryli_link').attr("href"),
-                            cover = $(item).find('.igalleryli_link img').attr("src");
-                        if (href.includes(i)) {
-                            url = cover;
-                        }
-                    })
-                    album = await Album.create({
-                        name: album_name,
-                        album_url: album_url,
-                        url: url,
-                        create_time: new Date(),
-                        category: 'nvshens',
-                        tags: tags
-                    });
-                    const images = await getPage(album_url);
-                    let j = 0;
-                    while (j < images.length) {
-                        let img = images[j];
-                        await Image.findOrCreate({
-                            where: {
-                                name: img.name
-                            },
-                            defaults: {
-                                album_id: album.id,
-                                album_name: album_name,
-                                url: img.src
-                            }
-                        });
-                        j++;
-                    }
-                    console.log(i, album_name);
-                } else {
-                    try {
-                        _$ = await request({
-                            url: _albums_url,
-                            headers: {
-                                Cookie: COOKIE,
-                                Host: HOST,
-                                Referer: GALLERY,
-                                "User-Agent": "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
-                            },
-                            transform: body => {
-                                return cheerio.load(body);
-                            }
-                        });
-                    } catch (error) {
-                        console.log('22', error)
-                    }
-                    if (_$('.photo_entry').html()) {
-                        _$('.photo_entry ul li').each((i, item) => {
-                            let href = $(item).find('.igalleryli_link').attr("href"),
-                                cover = $(item).find('.igalleryli_link img').attr("src");
-                            if (href.includes(i)) {
-                                url = cover;
-                            }
-                        })
-                        album = await Album.create({
-                            name: album_name,
-                            album_url: album_url,
-                            url: url,
-                            create_time: new Date(),
-                            category: 'nvshens',
-                            tags: tags
-                        })
-                        const images = await getPage(album_url);
-                        let j = 0;
-                        while (j < images.length) {
-                            let img = images[j];
-                            await Image.findOrCreate({
-                                where: {
-                                    name: img.name
-                                },
-                                defaults: {
-                                    album_id: album.id,
-                                    album_name: album_name,
-                                    url: img.src
-                                }
-                            });
-                            j++;
-                        }
-                        console.log(i, album_name);
-                    }
-                }
+                album = await Album.create({
+                    name: album_name,
+                    album_url: album_url,
+                    url: url,
+                    create_time: new Date(),
+                    category: 'nvshens',
+                    tags: tags
+                });
             } else {
-                let _$;
-                try {
-                    _$ = await request({
-                        url: albums_url,
-                        headers: {
-                            Cookie: COOKIE,
-                            Host: HOST,
-                            Referer: GALLERY,
-                            "User-Agent": "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
-                        },
-                        transform: body => {
-                            return cheerio.load(body);
-                        }
-                    });
-                } catch (error) {
-                    console.log('2', error)
-                }
-                if (_$('#photo_list ul').html()) {
-                    _$('#photo_list ul li').each((i, item) => {
-                        let href = $(item).find('.igalleryli_link').attr("href"),
-                            cover = $(item).find('.igalleryli_link img').attr("src");
-                        if (href.includes(i)) {
-                            url = cover;
-                        }
-                    })
-                    await album.update({
-                        url: url,
-                        tags: tags
-                    });
-                } else {
-                    try {
-                        _$ = await request({
-                            url: _albums_url,
-                            headers: {
-                                Cookie: COOKIE,
-                                Host: HOST,
-                                Referer: GALLERY,
-                                "User-Agent": "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
-                            },
-                            transform: body => {
-                                return cheerio.load(body);
-                            }
-                        });
-                    } catch (error) {
-                        console.log('22', error)
-                    }
-                    if (_$('.photo_entry').html()) {
-                        _$('.photo_entry ul li').each((i, item) => {
-                            let href = $(item).find('.igalleryli_link').attr("href"),
-                                cover = $(item).find('.igalleryli_link img').attr("src");
-                            if (href.includes(i)) {
-                                url = cover;
-                            }
-                        })
-                        await album.update({
-                            url: url,
-                            tags: tags
-                        })
-                    }
-                }
-                let album_url = album.album_url,
-                    album_name = album.name;
-                const images = await getPage(album_url);
-                let j = 0;
-                while (j < images.length) {
-                    let img = images[j];
-                    await Image.findOrCreate({
-                        where: {
-                            name: img.name
-                        },
-                        defaults: {
-                            album_id: album.id,
-                            album_name: album_name,
-                            url: img.src
-                        }
-                    });
-                    j++;
-                }
-                console.log(i, album_name);
+                await album.update({
+                    url: url,
+                    tags: tags
+                });
             }
+        }
+        let images = [];
+        if ($ && $('#hgallery').html()) {
+            images = await getPage(album_url);
+        } else if ($ && $('#pgallery').html()) {
+            images = [];
+            $('#pgallery li img').each((i, ele) => {
+                let ary = $(ele).attr('src').split('/');
+                ary.splice(-2, 1);
+                images.push({
+                    name: $(ele).attr('alt'),
+                    src: ary.join('/')
+                })
+            });
+        }
+        if (album_name) {
+            let j = 0;
+            while (j < images.length) {
+                let img = images[j];
+                await Image.findOrCreate({
+                    where: {
+                        name: img.name
+                    },
+                    defaults: {
+                        album_id: album.id,
+                        album_name: album_name,
+                        url: img.src
+                    }
+                });
+                j++;
+            }
+            console.log(i, album_name);
             number++
         }
         if (number >= 1000) {
