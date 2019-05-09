@@ -274,7 +274,8 @@ const init = async() => {
 
 
 const foo = async() => {
-    let i = 12396;
+    let i = 12405,
+        number = 0;
     while (i < 40000) {
         let album_url = NVSHEN + '/g/' + i + '/',
             url;
@@ -285,7 +286,7 @@ const foo = async() => {
                 headers: {
                     Cookie: COOKIE,
                     Host: HOST,
-                    "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
+                    "User-Agent": "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
                 },
                 transform: body => {
                     return cheerio.load(body);
@@ -294,7 +295,7 @@ const foo = async() => {
         } catch (error) {
             console.log(1, error);
         }
-        if ($('#hgallery').html()) {
+        if ($ && $('#hgallery').html()) {
             let album_name = $('#htilte').text();
             let album = await Album.findOne({
                 where: {
@@ -317,12 +318,10 @@ const foo = async() => {
                     _$ = await request({
                         url: albums_url,
                         headers: {
-                            Connection: "keep-alive",
-                            DNT: 1,
+                            Cookie: COOKIE,
                             Host: HOST,
-                            Pragma: "no-cache",
                             Referer: GALLERY,
-                            "User-Agent": "Mozilla/ 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
+                            "User-Agent": "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
                         },
                         transform: body => {
                             return cheerio.load(body);
@@ -386,6 +385,15 @@ const foo = async() => {
                 }
                 console.log(i, album_name);
             }
+            number++
+        }
+        if (number >= 1000) {
+            await new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    number = 0;
+                    resolve(null);
+                }, 60 * 60 * 1000);
+            });
         }
         i++;
     }
