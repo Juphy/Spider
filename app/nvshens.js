@@ -14,7 +14,7 @@ let index = 1; // 自增页数
 let number = 0; // 用于计数，超过5000休息两小时
 
 // 获取相册
-const getAlbum = async (url) => {
+const getAlbum = async(url) => {
     let $;
     let albums = [];
     try {
@@ -50,7 +50,7 @@ const getAlbum = async (url) => {
 }
 
 // 处理相册
-const handleAlbums = async (albums) => {
+const handleAlbums = async(albums) => {
     const datas = [];
     // 以下方法强行同步，以便读表与写表
     let i = 0;
@@ -72,7 +72,7 @@ const handleAlbums = async (albums) => {
         });
         let tags = [];
         if ($('#hgallery').html()) {
-            $('#utag li a').each(async (i, ele) => {
+            $('#utag li a').each(async(i, ele) => {
                 tags.push($(ele).text());
             })
         }
@@ -119,10 +119,10 @@ const handleAlbums = async (albums) => {
 }
 
 // 获取分页图片合集
-const getPage = async (album_url) => {
+const getPage = async(album_url) => {
     let imgs = [],
         index = 1;
-    let fn = async (url) => {
+    let fn = async(url) => {
         let $;
         try {
             $ = await request({
@@ -142,7 +142,7 @@ const getPage = async (album_url) => {
                 }
             });
             if ($('#hgallery').html()) {
-                $("#hgallery").children().each(async (i, ele) => {
+                $("#hgallery").children().each(async(i, ele) => {
                     imgs.push({
                         name: $(ele).attr('alt'),
                         src: $(ele).attr("src"),
@@ -160,7 +160,7 @@ const getPage = async (album_url) => {
     return imgs;
 }
 
-const getImgs = async (datas) => {
+const getImgs = async(datas) => {
     // 同步操作
     let n = 0;
     while (n < datas.length) {
@@ -198,7 +198,7 @@ const getImgs = async (datas) => {
     }
 }
 
-const main = async (url, URL) => {
+const main = async(url, URL) => {
     const albums = await getAlbum(url);
     if (albums.length && index <= 50) {
         // if (albums.length) {
@@ -211,7 +211,7 @@ const main = async (url, URL) => {
     }
 }
 
-const getAllTags = async (url) => {
+const getAllTags = async(url) => {
     let tags = [];
     try {
         let $ = await request({
@@ -228,7 +228,7 @@ const getAllTags = async (url) => {
             }
         });
         if ($ && $('.tag_div').html()) {
-            $('.tag_div ul li a').each(async (i, item) => {
+            $('.tag_div ul li a').each(async(i, item) => {
                 tags.push($(item).attr('href'));
             });
         }
@@ -239,7 +239,7 @@ const getAllTags = async (url) => {
     return tags;
 }
 
-const init = async () => {
+const init = async() => {
     const tags = await getAllTags(GALLERY);
     let i = 17;
     while (i < tags.length) {
@@ -271,8 +271,8 @@ const init = async () => {
 //     await main(GALLERY, GALLERY);
 // })
 
-const foo = async () => {
-    let INDEX = 13409,
+const foo = async() => {
+    let INDEX = 13864,
         number = 0;
     while (INDEX < 30000) {
         let album_url = NVSHEN + '/g/' + INDEX + '/',
@@ -290,12 +290,7 @@ const foo = async () => {
                 }
             });
         } catch (error) {
-            console.log(1, INDEX, error);
-            await new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    resolve(null);
-                }, 5 * 60 * 60 * 1000);
-            });
+            console.error(1, INDEX, error);
         }
         let tags = [],
             albums_url,
@@ -304,7 +299,7 @@ const foo = async () => {
             album_name,
             url;
         if ($ && $('#utag').html()) {
-            $('#utag li a').each(async (i, ele) => {
+            $('#utag li a').each(async(i, ele) => {
                 if (i === 0) {
                     _albums_url = NVSHEN + $(ele).attr("href");
                     albums_url = NVSHEN + $(ele).attr('href') + 'album/';
@@ -319,42 +314,11 @@ const foo = async () => {
                     name: album_name
                 }
             });
-            let _$;
-            try {
-                _$ = await request({
-                    url: albums_url,
-                    headers: {
-                        Cookie: COOKIE,
-                        Host: HOST,
-                        Referer: GALLERY,
-                        "User-Agent": "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
-                    },
-                    transform: body => {
-                        return cheerio.load(body);
-                    }
-                });
-            } catch (error) {
-                console.log('2', INDEX, error);
-                await new Promise((resolve, reject) => {
-                    setTimeout(() => {
-                        resolve(null);
-                    }, 5 * 60 * 60 * 1000);
-                });
-            }
-            if (_$ && _$('#photo_list ul').html()) {
-                _$('#photo_list ul li').each((ind, item) => {
-                    let href = $(item).find('.igalleryli_link').attr("href"),
-                        cover = $(item).find('.igalleryli_link img').attr("src");
-                    if (href.includes(INDEX)) {
-                        url = cover;
-                    }
-                })
-
-            } else {
+            if (albums_url && albums_url.lastIndexOf('http') === 0) {
                 let _$;
                 try {
                     _$ = await request({
-                        url: _albums_url,
+                        url: albums_url,
                         headers: {
                             Cookie: COOKIE,
                             Host: HOST,
@@ -366,21 +330,46 @@ const foo = async () => {
                         }
                     });
                 } catch (error) {
-                    console.log(3, INDEX, error);
-                    await new Promise((resolve, reject) => {
-                        setTimeout(() => {
-                            resolve(null);
-                        }, 5 * 60 * 60 * 1000);
-                    });
+                    console.error('2', INDEX, error);
                 }
-                if ($ && _$('.photo_ul').html()) {
-                    _$('.photo_ul li').each((ind, item) => {
+                if (_$ && _$('#photo_list ul').html()) {
+                    _$('#photo_list ul li').each((ind, item) => {
                         let href = $(item).find('.igalleryli_link').attr("href"),
-                            cover = $(item).find('.igalleryli_link img').attr("data-original");
+                            cover = $(item).find('.igalleryli_link img').attr("src");
                         if (href.includes(INDEX)) {
                             url = cover;
                         }
                     })
+
+                } else {
+                    if (_albums_url.lastIndexOf('http') === 0) {
+                        let _$;
+                        try {
+                            _$ = await request({
+                                url: _albums_url,
+                                headers: {
+                                    Cookie: COOKIE,
+                                    Host: HOST,
+                                    Referer: GALLERY,
+                                    "User-Agent": "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 73.0.3683.103 Safari / 537.36"
+                                },
+                                transform: body => {
+                                    return cheerio.load(body);
+                                }
+                            });
+                        } catch (error) {
+                            console.error(3, INDEX, error);
+                        }
+                        if ($ && _$('.photo_ul').html()) {
+                            _$('.photo_ul li').each((ind, item) => {
+                                let href = $(item).find('.igalleryli_link').attr("href"),
+                                    cover = $(item).find('.igalleryli_link img').attr("data-original");
+                                if (href.includes(INDEX)) {
+                                    url = cover;
+                                }
+                            })
+                        }
+                    }
                 }
             }
             if (!album) {
