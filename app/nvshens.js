@@ -272,7 +272,7 @@ const init = async () => {
 // })
 
 const foo = async () => {
-    let INDEX = 13285,
+    let INDEX = 13409,
         number = 0;
     while (INDEX < 30000) {
         let album_url = NVSHEN + '/g/' + INDEX + '/',
@@ -290,7 +290,12 @@ const foo = async () => {
                 }
             });
         } catch (error) {
-            console.log(1, error);
+            console.log(1, INDEX, error);
+            await new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve(null);
+                }, 5 * 60 * 60 * 1000);
+            });
         }
         let tags = [],
             albums_url,
@@ -329,7 +334,12 @@ const foo = async () => {
                     }
                 });
             } catch (error) {
-                console.log('2', error)
+                console.log('2', INDEX, error);
+                await new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve(null);
+                    }, 5 * 60 * 60 * 1000);
+                });
             }
             if (_$ && _$('#photo_list ul').html()) {
                 _$('#photo_list ul li').each((ind, item) => {
@@ -356,7 +366,12 @@ const foo = async () => {
                         }
                     });
                 } catch (error) {
-                    console.log('3', error)
+                    console.log(3, INDEX, error);
+                    await new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            resolve(null);
+                        }, 5 * 60 * 60 * 1000);
+                    });
                 }
                 if ($ && _$('.photo_ul').html()) {
                     _$('.photo_ul li').each((ind, item) => {
