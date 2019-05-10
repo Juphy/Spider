@@ -272,7 +272,7 @@ const init = async () => {
 // })
 
 const foo = async () => {
-    let INDEX = 12424,
+    let INDEX = 13261,
         number = 0;
     while (INDEX < 30000) {
         let album_url = NVSHEN + '/g/' + INDEX + '/',
@@ -331,7 +331,7 @@ const foo = async () => {
             } catch (error) {
                 console.log('2', error)
             }
-            if (_$('#photo_list ul').html()) {
+            if (_$ && _$('#photo_list ul').html()) {
                 _$('#photo_list ul li').each((ind, item) => {
                     let href = $(item).find('.igalleryli_link').attr("href"),
                         cover = $(item).find('.igalleryli_link img').attr("src");
@@ -358,7 +358,7 @@ const foo = async () => {
                 } catch (error) {
                     console.log('3', error)
                 }
-                if (_$('.photo_ul').html()) {
+                if ($ && _$('.photo_ul').html()) {
                     _$('.photo_ul li').each((ind, item) => {
                         let href = $(item).find('.igalleryli_link').attr("href"),
                             cover = $(item).find('.igalleryli_link img').attr("data-original");
