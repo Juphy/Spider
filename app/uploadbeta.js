@@ -9,7 +9,7 @@ const {
     Photo
 } = require("../lib/model");
 
-let keys = ['推女郎', '性感', '车模', '美腿', "美女", 'beauty', 'sexy', 'girl', 'BingEverydayWallpaperPicture'];
+let keys = ['推女郎', '性感', '车模', '美腿', "美女", 'beauty', 'sexy', 'girl', '小姐姐', '少女'];
 
 let i = 0; // keys的索引
 let page = 0,
