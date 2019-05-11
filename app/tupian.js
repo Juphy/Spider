@@ -152,7 +152,7 @@ const handleImages = async (album_url) => {
             switch (N) {
                 case 0:
                     if ($ && $('#picBody').html()) {
-                        name = $('#picBody a img').attr('alt');
+                        name = $('#picBody a img').attr('alt') + `(${i})`;
                         src = $('#picBody a img').attr('src');
                     }
                     break;
@@ -282,10 +282,10 @@ const main = async (_url, number) => {
                     url = _url + `list_11_${n}.html`;
                     break;
                 case 1:
-                    url = _url + `list_1_${n}.html`;
+                    url = _url + `list_9_${n}.html`;
                     break;
                 case 2:
-                    url = _url + `list_9_${n}.html`;
+                    url = _url + `list_1_${n}.html`;
                     break;
                 case 3:
                     url = _url + `list_${n}.html`;
