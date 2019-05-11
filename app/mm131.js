@@ -137,8 +137,7 @@ const handlePgae = async (url, index) => {
 }
 const main = async (_url, number, index) => {
     let n = 1;
-    // while (n < number) {
-    while (n < 2) {
+    while (n < number) {
         let url;
         if (n === 1) {
             url = _url;
@@ -152,8 +151,7 @@ const main = async (_url, number, index) => {
 
 const init = async () => {
     let i = 1;
-    // while (i < tags.length) {
-    while (i < 2) {
+    while (i < tags.length) {
         let url = MM + tags[i];
         let $ = await request({
             url,
@@ -172,7 +170,6 @@ const init = async () => {
         }
         i++;
     }
-
 }
 
 init();
