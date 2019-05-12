@@ -1,7 +1,7 @@
 let request = require("request-promise"),
     schedule = require('node-schedule'),
     cheerio = require("cheerio");
-let { URL_BING: URL, BING_API: API, BING: BING } = require("../config");
+let { URL_BING: URL, BING: BING } = require("../config");
 let weibo = require("../main");
 
 const {
@@ -10,7 +10,7 @@ const {
 
 let index = 1;
 
-const getPerPage = async() => {
+const getPerPage = async () => {
     let images = [];
     let html;
     try {
@@ -19,7 +19,7 @@ const getPerPage = async() => {
         });
         let $ = await cheerio.load(html);
         if ($('.container .item .card').html()) {
-            $('.container .item .card').each(async(i, ele) => {
+            $('.container .item .card').each(async (i, ele) => {
                 let _$ = cheerio.load($(ele).html());
                 images.push({
                     url: _$('img').attr("src"),
@@ -34,7 +34,7 @@ const getPerPage = async() => {
     return images;
 }
 
-const handleImg = async(images) => {
+const handleImg = async (images) => {
     let i = 0;
     while (i < images.length) {
         let img = images[i];
@@ -71,7 +71,7 @@ const handleImg = async(images) => {
     }
 }
 
-let main = async() => {
+let main = async () => {
     let images = await getPerPage();
     await handleImg(images);
     if (index) {
@@ -82,7 +82,7 @@ let main = async() => {
 
 // main();
 
-let refresh = async() => {
+let refresh = async () => {
     let datas = await request({
         url: 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=8&mkt=zh-CN',
         transform: data => {
@@ -107,7 +107,7 @@ let refresh = async() => {
                 console.log('cookie error', result)
                 weibo.TASK && weibo.TASK.cancel();
                 await weibo.loginto();
-                result = await weibo.uploadImg(img.url);
+                result = await weibo.uploadImg(url);
             }
             let date = data.enddate;
             await Bing.create({
@@ -132,7 +132,7 @@ const rule = new schedule.RecurrenceRule();
 rule.hour = [0, 6];
 rule.minute = [0];
 rule.second = [0];
-schedule.scheduleJob(rule, async() => {
+schedule.scheduleJob(rule, async () => {
     console.log("重启时间", new Date().toLocaleString());
     await refresh();
-})
+});

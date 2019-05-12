@@ -235,10 +235,11 @@ const handlePage = async (url) => {
                 width: item.width,
                 height: item.height,
                 create_time: new Date(),
-                category: '2717',
+                category: categorys[N],
                 tags: (N === 3 || N === 4) ? tags : item.tags
             }
         });
+        album[0].update({ category: categorys[N] });
         let images = await handleImages(item.album_url);
         let m = 0;
         while (m < images.length) {
