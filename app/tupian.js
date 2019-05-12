@@ -154,6 +154,12 @@ const handleImages = async (album_url) => {
                     if ($ && $('#picBody').html()) {
                         name = $('#picBody a img').attr('alt') + `(${i})`;
                         src = $('#picBody a img').attr('src');
+                        src = src.split('http').slice(0, 2).join('http');
+                        if (src.includes('t1.27270.com')) {
+                            let _src = src.split('.');
+                            _src[1] = 'hddhhn';
+                            src = _src.join('.');
+                        }
                     }
                     break;
                 case 1:
