@@ -29,7 +29,7 @@ const getAlbums = async (url) => {
             $('#index-pic .photo a').each((o, ele) => {
                 let album_url = URL + '/' + $(ele).attr('href'),
                     $img = $(ele).find('img');
-                let alt = $img.attr('alt').split(' ');
+                let alt = $img.attr('alt').split(' ').filter(i => i);
                 albums.push({
                     album_url,
                     url: $img.attr('src'),
@@ -134,8 +134,8 @@ const main = async (url) => {
         flag++;
         n++;
     }
-    if (albums[NEXT]) {
-        await main(URL + '/' + albums[NEXT]);
+    if (albums['NEXT']) {
+        await main(URL + '/' + albums['NEXT']);
     }
 
 }
