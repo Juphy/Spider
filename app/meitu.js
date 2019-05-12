@@ -9,6 +9,7 @@ const {
 } = require("../lib/model");
 
 const COOKIE = 'pjr5_2132_saltkey=Lz2I3kiI; pjr5_2132_lastvisit=1557644091; Hm_lvt_6a60b923391636750bd84d6047523609=1557647691; pjr5_2132_st_t=0%7C1557647819%7Cd6986f25097a369c39da8e6b9428550f; pjr5_2132_forum_lastvisit=D_133_1557647819; pjr5_2132_visitedfid=40D133; pjr5_2132_viewid=tid_20633; pjr5_2132_st_p=0%7C1557648028%7Cf19b2c8227ff1fa4bc1817123ab41bce; pjr5_2132_sid=N1uyYT; pjr5_2132_sendmail=1; pjr5_2132_lastact=1557660395%09plugin.php%09; Hm_lpvt_6a60b923391636750bd84d6047523609=1557660394';
+let flag = 1;
 
 const getAlbums = async (url) => {
     let albums = [];
@@ -88,7 +89,6 @@ const handleImages = async (url, name) => {
 
 const main = async (url) => {
     let albums = await getAlbums(url);
-    console.log(albums);
     let n = 0;
     while (n < albums.length) {
         let item = albums[n];
@@ -121,6 +121,17 @@ const main = async (url) => {
             });
             m++;
         }
+        console.log(item.name, flag);
+        if (flag > 1000) {
+            await new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    flag = 0;
+                    console.log(new Date().toLocaleString());
+                    resolve(null);
+                }, 60 * 60 * 1000);
+            });
+        }
+        flag++;
         n++;
     }
     if (albums[NEXT]) {
