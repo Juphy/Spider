@@ -37,7 +37,7 @@ const getAlbums = async (url) => {
                     tags: alt.slice(0, 2)
                 })
             });
-            albums['NEXT'] = $('.pg .vpn').attr('href');
+            albums['NEXT'] = $('.pg .vpn').last().attr('href');
         }
     } catch (e) {
         console.log(1, e)
@@ -89,6 +89,7 @@ const handleImages = async (url, name) => {
 
 const main = async (url) => {
     let albums = await getAlbums(url);
+    // console.log(albums);
     let n = 0;
     while (n < albums.length) {
         let item = albums[n];
@@ -103,6 +104,7 @@ const main = async (url) => {
             }
         });
         let images = await handleImages(item.album_url, item.name);
+        // console.log(images);
         album[0].update({
             tags: images['TAGS']
         })
