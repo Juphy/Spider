@@ -54,6 +54,17 @@ const handleImages = async(images) => {
                 }
             }
         } else {
+            if (!photo.sina_url) {
+                try {
+                    result = await weibo.uploadImg(`${UPLOADBETA}/_s/${img.url}`);
+                } catch (e) {
+                    console.log("报错", new Date());
+                } finally {
+                    await photo.update({
+                        sina_url: (result && result.pid) ? `http://ww1.sinaimg.cn/large/${result.pid}.jpg` : ''
+                    })
+                }
+            }
             if (!photo.tags.includes(keys[i])) {
                 await photo.update({
                     tags: photo.tags.concat(keys[i])
@@ -93,7 +104,7 @@ const main = async(n) => {
 // main(0);
 
 const rule = new schedule.RecurrenceRule();
-rule.hour = [1, 12];
+rule.hour = [3, 12];
 rule.minute = [0];
 rule.second = [0];
 schedule.scheduleJob(rule, async() => {
