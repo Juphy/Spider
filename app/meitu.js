@@ -152,8 +152,7 @@ const main = async (url) => {
     let albums = await Album.findAll({
         where: {
             category: 'lsm'
-        },
-        limit: 10
+        }
     });
     let i = 0;
     while (i < albums.length) {
