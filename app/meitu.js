@@ -193,7 +193,7 @@ const main = async (url) => {
             let n = 0;
             while (n < images.length) {
                 let image = images[n];
-                image.update({
+                await image.update({
                     album_name: name,
                     name: name + '(' + image.name.split('(')[1].split(')')[0] + ')'
                 })
