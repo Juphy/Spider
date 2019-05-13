@@ -6,7 +6,6 @@ let cheerio = require('cheerio'),
 let weibo = require("../main");
 
 const {
-    Image,
     Album,
     Picture
 } = require("../lib/model");
@@ -163,7 +162,7 @@ const main = async() => {
 // main();
 
 const rule = new schedule.RecurrenceRule();
-rule.hour = [2, 13];
+rule.hour = [1, 13];
 rule.minute = [0];
 rule.second = [0];
 schedule.scheduleJob(rule, async() => {
