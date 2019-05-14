@@ -1,5 +1,6 @@
 let cheerio = require("cheerio"),
     request = require("request-promise"),
+    schedule = require('node-schedule'),
     iconv = require('iconv-lite'),
     { URL_lsm: URL } = require("../config");
 
@@ -11,7 +12,7 @@ const {
 const COOKIE = 'pjr5_2132_saltkey=Lz2I3kiI; pjr5_2132_lastvisit=1557644091; Hm_lvt_6a60b923391636750bd84d6047523609=1557647691; pjr5_2132_st_t=0%7C1557647819%7Cd6986f25097a369c39da8e6b9428550f; pjr5_2132_forum_lastvisit=D_133_1557647819; pjr5_2132_visitedfid=40D133; pjr5_2132_viewid=tid_20633; pjr5_2132_st_p=0%7C1557648028%7Cf19b2c8227ff1fa4bc1817123ab41bce; pjr5_2132_sid=N1uyYT; pjr5_2132_sendmail=1; pjr5_2132_lastact=1557660395%09plugin.php%09; Hm_lpvt_6a60b923391636750bd84d6047523609=1557660394';
 let flag = 1;
 
-const getAlbums = async (url) => {
+const getAlbums = async(url) => {
     let albums = [];
     try {
         let $ = await request({
@@ -49,9 +50,10 @@ const getAlbums = async (url) => {
     return albums;
 }
 
-const handleImages = async (url, name) => {
-    let images = [], i = 0;
-    let fn = async (url) => {
+const handleImages = async(url, name) => {
+    let images = [],
+        i = 0;
+    let fn = async(url) => {
         try {
             let $ = await request({
                 url,
@@ -91,7 +93,7 @@ const handleImages = async (url, name) => {
     return images;
 }
 
-const main = async (url) => {
+const main = async(url) => {
     let albums = await getAlbums(url);
     // console.log(albums);
     let n = 0;
@@ -147,61 +149,81 @@ const main = async (url) => {
     }
 
 }
-// main(URL);
-(async () => {
-    let albums = await Album.findAll({
-        where: {
-            category: 'lsm'
-        }
-    });
-    let i = 0;
-    while (i < albums.length) {
-        let album = albums[i];
-        try {
-            let $ = await request({
-                url: album.album_url,
-                headers: {
-                    Cookie: COOKIE,
-                    Referer: URL,
-                    "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/53'
-                },
-                transform: body => {
-                    return cheerio.load(body);
-                }
-            });
-            let title = $('#thread-title h1').text().split(' ').filter(i => i);
-            let name = title.join(' ');
-            let tags = title.slice(0, 2);
-            if (album.tags === "[db:标签]") {
-                await album.update({
-                    name,
-                    tags
-                })
-            } else {
-                tags = new Set(tags.concat(album.tags));
-                await album.update({
-                    name,
-                    tags: [...tags]
-                })
-            }
-            let images = await Meitu.findAll({
-                where: {
-                    album_id: album.id
-                }
-            })
-            let n = 0;
-            while (n < images.length) {
-                let image = images[n];
-                await image.update({
-                    album_name: name,
-                    name: name + '(' + image.name.split('(')[1].split(')')[0] + ')'
-                })
-                n++
-            }
-            console.log(name, i);
-        } catch (e) {
-            console.log(e);
-        }
-        i++;
-    }
-})()
+
+const rule = new schedule.RecurrenceRule();
+rule.dayOfWeek = [3, 6];
+rule.hour = [15];
+rule.minute = [0];
+rule.second = [0];
+schedule.scheduleJob(rule, async() => {
+    flag = 1;
+    console.log("重启时间", new Date().toLocaleString());
+    main(URL);
+})
+
+
+// (async() => {
+//     let albums = await Album.findAll({
+//         where: {
+//             category: 'lsm'
+//         }
+//     });
+//     let i = 0;
+//     while (i < albums.length) {
+//         let album = albums[i];
+//         if (album.tags.includes('[db:标签]')) {
+//             let tags = album.tags;
+//             tags.pop();
+//             await album.update({
+//                 tags
+//             })
+//             console.log(i);
+//         }
+// try {
+//     let $ = await request({
+//         url: album.album_url,
+//         headers: {
+//             Cookie: COOKIE,
+//             Referer: URL,
+//             "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/53'
+//         },
+//         transform: body => {
+//             return cheerio.load(body);
+//         }
+//     });
+//     let title = $('#thread-title h1').text().split(' ').filter(i => i);
+//     let name = title.join(' ');
+//     let tags = title.slice(0, 2);
+//     if (album.tags[0]=== "[db:标签]") {
+//         await album.update({
+//             name,
+//             tags
+//         })
+//     } else {
+//         tags = new Set(tags.concat(album.tags));
+//         await album.update({
+//             name,
+//             tags: [...tags]
+//         })
+//     }
+//     let images = await Meitu.findAll({
+//         where: {
+//             album_id: album.id
+//         }
+//     })
+//     let n = 0;
+//     while (n < images.length) {
+//         let image = images[n];
+//         await image.update({
+//             album_name: name,
+//             name: name + '(' + image.name.split('(')[1].split(')')[0] + ')'
+//         })
+//         n++
+//     }
+//     console.log(name, i);
+// } catch (e) {
+//     console.log(e);
+// }
+//         i++;
+//     }
+// })()
