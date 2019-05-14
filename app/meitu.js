@@ -109,39 +109,41 @@ const main = async(url) => {
                 tags: item.tags
             }
         });
-        let images = await handleImages(item.album_url, item.name);
-        // console.log(images);
-        if (images['TAGS'] !== '[db:标签]') {
-            album[0].update({
-                tags: [...item.tags.concat(new Set(images['TAGS']))]
-            })
+        if (album[1]) {
+            let images = await handleImages(item.album_url, item.name);
+            // console.log(images);
+            if (images['TAGS'] !== '[db:标签]') {
+                album[0].update({
+                    tags: [...item.tags.concat(new Set(images['TAGS']))]
+                })
+            }
+            let m = 0;
+            while (m < images.length) {
+                let image = images[m];
+                await Meitu.findOrCreate({
+                    where: {
+                        name: image.name
+                    },
+                    defaults: {
+                        album_id: album[0].id,
+                        album_name: item.name,
+                        url: image.url
+                    }
+                });
+                m++;
+            }
+            console.log(item.name, flag);
+            if (flag > 1000) {
+                await new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        flag = 0;
+                        console.log(new Date().toLocaleString());
+                        resolve(null);
+                    }, 60 * 60 * 1000);
+                });
+            }
+            flag++;
         }
-        let m = 0;
-        while (m < images.length) {
-            let image = images[m];
-            await Meitu.findOrCreate({
-                where: {
-                    name: image.name
-                },
-                defaults: {
-                    album_id: album[0].id,
-                    album_name: item.name,
-                    url: image.url
-                }
-            });
-            m++;
-        }
-        console.log(item.name, flag);
-        if (flag > 1000) {
-            await new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    flag = 0;
-                    console.log(new Date().toLocaleString());
-                    resolve(null);
-                }, 60 * 60 * 1000);
-            });
-        }
-        flag++;
         n++;
     }
     if (albums['NEXT']) {
@@ -151,8 +153,7 @@ const main = async(url) => {
 }
 
 const rule = new schedule.RecurrenceRule();
-rule.dayOfWeek = [3, 6];
-rule.hour = [15];
+rule.hour = [4, 14];
 rule.minute = [0];
 rule.second = [0];
 schedule.scheduleJob(rule, async() => {
@@ -160,7 +161,7 @@ schedule.scheduleJob(rule, async() => {
     console.log("重启时间", new Date().toLocaleString());
     main(URL);
 })
-
+main(URL);
 
 // (async() => {
 //     let albums = await Album.findAll({
