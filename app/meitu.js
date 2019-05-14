@@ -157,11 +157,11 @@ rule.hour = [4, 14];
 rule.minute = [0];
 rule.second = [0];
 schedule.scheduleJob(rule, async() => {
-    flag = 1;
-    console.log("重启时间", new Date().toLocaleString());
-    main(URL);
-})
-main(URL);
+        flag = 1;
+        console.log("重启时间", new Date().toLocaleString());
+        main(URL);
+    })
+    // main(URL);
 
 // (async() => {
 //     let albums = await Album.findAll({
