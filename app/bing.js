@@ -129,10 +129,10 @@ let refresh = async() => {
                     await weibo.loginto();
                     result = await weibo.uploadImg(url);
                 }
+                await bing.update({
+                    sina_url: (result && result.pid) ? `http://ww1.sinaimg.cn/large/${result.pid}.jpg` : ''
+                })
             }
-            await bing.update({
-                sina_url: (result && result.pid) ? `http://ww1.sinaimg.cn/large/${result.pid}.jpg` : ''
-            })
         }
         i++;
     }
@@ -146,3 +146,4 @@ schedule.scheduleJob(rule, async() => {
     console.log("重启时间", new Date().toLocaleString());
     await refresh();
 });
+refresh();
