@@ -33,11 +33,15 @@ const getAlbums = async (url) => {
                 albums.push({
                     album_url,
                     url: $img.attr('src'),
-                    name: alt.slice(2).join(' '),
+                    name: alt.join(' '),
                     tags: alt.slice(0, 2)
                 })
             });
-            albums['NEXT'] = $('.pg .vpn').last().attr('href');
+            let href = $('.pg .vpn').last().attr('href'),
+                current = $('.pg .current').text();
+            if (Number(current) < Number(href.split('=').pop())) {
+                albums['NEXT'] = href;
+            }
         }
     } catch (e) {
         console.log(1, e)
@@ -105,9 +109,11 @@ const main = async (url) => {
         });
         let images = await handleImages(item.album_url, item.name);
         // console.log(images);
-        album[0].update({
-            tags: images['TAGS']
-        })
+        if (images['TAGS'] !== '[db:标签]') {
+            album[0].update({
+                tags: [...item.tags.concat(new Set(images['TAGS']))]
+            })
+        }
         let m = 0;
         while (m < images.length) {
             let image = images[m];
@@ -141,4 +147,61 @@ const main = async (url) => {
     }
 
 }
-main(URL);
+// main(URL);
+(async () => {
+    let albums = await Album.findAll({
+        where: {
+            category: 'lsm'
+        }
+    });
+    let i = 0;
+    while (i < albums.length) {
+        let album = albums[i];
+        try {
+            let $ = await request({
+                url: album.album_url,
+                headers: {
+                    Cookie: COOKIE,
+                    Referer: URL,
+                    "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/53'
+                },
+                transform: body => {
+                    return cheerio.load(body);
+                }
+            });
+            let title = $('#thread-title h1').text().split(' ').filter(i => i);
+            let name = title.join(' ');
+            let tags = title.slice(0, 2);
+            if (album.tags === "[db:标签]") {
+                await album.update({
+                    name,
+                    tags
+                })
+            } else {
+                tags = new Set(tags.concat(album.tags));
+                await album.update({
+                    name,
+                    tags: [...tags]
+                })
+            }
+            let images = await Meitu.findAll({
+                where: {
+                    album_id: album.id
+                }
+            })
+            let n = 0;
+            while (n < images.length) {
+                let image = images[n];
+                await image.update({
+                    album_name: name,
+                    name: name + '(' + image.name.split('(')[1].split(')')[0] + ')'
+                })
+                n++
+            }
+            console.log(name, i);
+        } catch (e) {
+            console.log(e);
+        }
+        i++;
+    }
+})()
