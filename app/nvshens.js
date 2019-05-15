@@ -14,7 +14,7 @@ let index = 1; // 自增页数
 let number = 0; // 用于计数，超过5000休息两小时
 
 // 获取相册
-const getAlbum = async (url) => {
+const getAlbum = async(url) => {
     let $;
     let albums = [];
     try {
@@ -50,7 +50,7 @@ const getAlbum = async (url) => {
 }
 
 // 处理相册
-const handleAlbums = async (albums) => {
+const handleAlbums = async(albums) => {
     const datas = [];
     // 以下方法强行同步，以便读表与写表
     let i = 0;
@@ -72,7 +72,7 @@ const handleAlbums = async (albums) => {
         });
         let tags = [];
         if ($('#hgallery').html()) {
-            $('#utag li a').each(async (i, ele) => {
+            $('#utag li a').each(async(i, ele) => {
                 tags.push($(ele).text());
             })
         }
@@ -119,10 +119,10 @@ const handleAlbums = async (albums) => {
 }
 
 // 获取分页图片合集
-const getPage = async (album_url) => {
+const getPage = async(album_url) => {
     let imgs = [],
         index = 1;
-    let fn = async (url) => {
+    let fn = async(url) => {
         let $;
         try {
             $ = await request({
@@ -142,7 +142,7 @@ const getPage = async (album_url) => {
                 }
             });
             if ($('#hgallery').html()) {
-                $("#hgallery").children().each(async (i, ele) => {
+                $("#hgallery").children().each(async(i, ele) => {
                     imgs.push({
                         name: $(ele).attr('alt'),
                         src: $(ele).attr("src"),
@@ -160,7 +160,7 @@ const getPage = async (album_url) => {
     return imgs;
 }
 
-const getImgs = async (datas) => {
+const getImgs = async(datas) => {
     // 同步操作
     let n = 0;
     while (n < datas.length) {
@@ -198,7 +198,7 @@ const getImgs = async (datas) => {
     }
 }
 
-const main = async (url, URL) => {
+const main = async(url, URL) => {
     const albums = await getAlbum(url);
     if (albums.length && index <= 50) {
         // if (albums.length) {
@@ -211,7 +211,7 @@ const main = async (url, URL) => {
     }
 }
 
-const getAllTags = async (url) => {
+const getAllTags = async(url) => {
     let tags = [];
     try {
         let $ = await request({
@@ -228,7 +228,7 @@ const getAllTags = async (url) => {
             }
         });
         if ($ && $('.tag_div').html()) {
-            $('.tag_div ul li a').each(async (i, item) => {
+            $('.tag_div ul li a').each(async(i, item) => {
                 tags.push($(item).attr('href'));
             });
         }
@@ -239,7 +239,7 @@ const getAllTags = async (url) => {
     return tags;
 }
 
-const init = async () => {
+const init = async() => {
     const tags = await getAllTags(GALLERY);
     let i = 17;
     while (i < tags.length) {
@@ -271,10 +271,10 @@ const init = async () => {
 //     await main(GALLERY, GALLERY);
 // })
 
-const foo = async () => {
-    let INDEX = 19374,
+const foo = async() => {
+    let INDEX = 10000,
         number = 0;
-    while (INDEX < 30000) {
+    while (INDEX < 31000) {
         let album_url = NVSHEN + '/g/' + INDEX + '/',
             $;
         try {
@@ -298,8 +298,8 @@ const foo = async () => {
             album,
             album_name,
             url;
-        if ($ && $('#utag').html()) {
-            $('#utag li a').each(async (i, ele) => {
+        if ($ && $('.albumTitle').html()) {
+            $('#utag li a').each(async(i, ele) => {
                 if (i === 0) {
                     _albums_url = NVSHEN + $(ele).attr("href");
                     albums_url = NVSHEN + $(ele).attr('href') + 'album/';
@@ -314,7 +314,7 @@ const foo = async () => {
                     name: album_name
                 }
             });
-            if (albums_url && albums_url.lastIndexOf('http') === 0) {
+            if (!album && albums_url && albums_url.lastIndexOf('http') === 0) {
                 let _$;
                 try {
                     _$ = await request({
@@ -381,45 +381,44 @@ const foo = async () => {
                     category: 'nvshens',
                     tags: [...new Set(tags)]
                 });
-            } else {
-                await album.update({
-                    url: url,
-                    tags: [...new Set(tags)]
-                });
-            }
-        }
-        let images = [];
-        if ($ && $('#hgallery').html()) {
-            images = await getPage(album_url);
-        } else if ($ && $('#pgallery').html()) {
-            images = [];
-            $('#pgallery li img').each((i, ele) => {
-                let ary = $(ele).attr('src').split('/');
-                ary.splice(-2, 1);
-                images.push({
-                    name: $(ele).attr('alt'),
-                    src: ary.join('/')
-                })
-            });
-        }
-        if (album_name) {
-            let j = 0;
-            while (j < images.length) {
-                let img = images[j];
-                await Image.findOrCreate({
-                    where: {
-                        name: img.name
-                    },
-                    defaults: {
-                        album_id: album.id,
-                        album_name: album_name,
-                        url: img.src
+                let images = [];
+                if ($ && $('#hgallery').html()) {
+                    images = await getPage(album_url);
+                } else if ($ && $('#pgallery').html()) {
+                    images = [];
+                    $('#pgallery li img').each((i, ele) => {
+                        let ary = $(ele).attr('src').split('/');
+                        ary.splice(-2, 1);
+                        images.push({
+                            name: $(ele).attr('alt'),
+                            src: ary.join('/')
+                        })
+                    });
+                }
+                if (album_name) {
+                    let j = 0;
+                    while (j < images.length) {
+                        let img = images[j];
+                        await Image.findOrCreate({
+                            where: {
+                                name: img.name
+                            },
+                            defaults: {
+                                album_id: album.id,
+                                album_name: album_name,
+                                url: img.src
+                            }
+                        });
+                        j++;
                     }
-                });
-                j++;
+                    number++
+                }
+            } else {
+                // await album.update({
+                //     url: url,
+                //     tags: [...new Set(tags)]
+                // });
             }
-            number++
-            console.log(INDEX, album_name, number);
         }
         if (number > 1000) {
             await new Promise((resolve, reject) => {
@@ -430,7 +429,18 @@ const foo = async () => {
                 }, 60 * 60 * 1000);
             });
         }
+        console.log(INDEX, album_name, number)
         INDEX++;
     }
 }
+
+const rule = new schedule.RecurrenceRule();
+rule.hour = [5];
+rule.minute = [0];
+rule.second = [0];
+schedule.scheduleJob(rule, async() => {
+    number = 1;
+    console.log("重启时间", new Date().toLocaleString());
+    foo();
+});
 foo();
