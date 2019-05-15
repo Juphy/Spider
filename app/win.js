@@ -59,10 +59,10 @@ const getAlbums = async (url) => {
 }
 
 const handelImages = async (album_url) => {
-    console.log(album_url);
+    // console.log(album_url);
     let images = [], i = 1;
     let flag = album_url.split('/').pop().split('.')[0];
-    console.log(flag);
+    // console.log(flag);
     let fn = async (url) => {
         let $;
         try {
@@ -82,7 +82,6 @@ const handelImages = async (album_url) => {
             if ($ && $("#pic-meinv").html()) {
                 let src = $('#pic-meinv img').attr('data-original'),
                     name = $('.ptitle h1').text() + "(" + i + ")";
-                console.log(src);
                 images.push({
                     name, src
                 });
@@ -161,7 +160,7 @@ const handlePgae = async (url, index) => {
 }
 const main = async (url) => {
     let albums = await getAlbums(url);
-    console.log(albums);
+    // console.log(albums);
     let n = 0;
     while (n < albums.length) {
         let item = albums[n];
