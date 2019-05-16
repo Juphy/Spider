@@ -9,7 +9,7 @@ const {
 } = require("../lib/model");
 
 const COOKIE = ["adClass0803=18; adClass0803=1; Hm_lvt_d6af4abc8836cbe6ecc10163af1ed92e=1557565607,1557565978,1557566051; Hm_lpvt_d6af4abc8836cbe6ecc10163af1ed92e=1557570200",
-    "Hm_lvt_418404b216c475621299c2d1de88748a=1557575721; Hm_lpvt_418404b216c475621299c2d1de88748a=1557589452",
+    "Hm_lvt_418404b216c475621299c2d1de88748a=1557832982,1557982648; Hm_lpvt_418404b216c475621299c2d1de88748a=1557982796",
     "UM_distinctid=16aa6bccfc22c9-0db8c8eb6d4ab5-6353160-100200-16aa6bccfc3270; __51cke__=; Hm_lvt_5f71360d4e4b92b6287018e6313c6633=1557575022,1557581928; CNZZDATA3482847=cnzz_eid%3D1278992741-1557575530-%26ntime%3D1557586407; __tins__6747931=%7B%22sid%22%3A%201557590406331%2C%20%22vd%22%3A%201%2C%20%22expires%22%3A%201557592206331%7D; __51laig__=30; Hm_lpvt_5f71360d4e4b92b6287018e6313c6633=1557590406",
     "UM_distinctid=16aa71e432161-0c2acb4ffa6751-6353160-100200-16aa71e4322192; Hm_lvt_5bebaeb4f49618f50265b2e764e4b5d8=1557581940; CNZZDATA1275074800=155059152-1557580986-https%253A%252F%252Fwww.aitaotu.com%252F%7C1557588710; Hm_lpvt_5bebaeb4f49618f50265b2e764e4b5d8=1557588709",
     "UM_distinctid=16aa71e432161-0c2acb4ffa6751-6353160-100200-16aa71e4322192; Hm_lvt_5bebaeb4f49618f50265b2e764e4b5d8=1557581940; CNZZDATA1275074800=155059152-1557580986-https%253A%252F%252Fwww.aitaotu.com%252F%7C1557588710; Hm_lpvt_5bebaeb4f49618f50265b2e764e4b5d8=1557588709"
@@ -250,24 +250,25 @@ const handlePage = async(url) => {
                 tags: (N === 3 || N === 4) ? tags : item.tags
             }
         });
-        album[0].update({ category: categorys[N] });
-        let images = await handleImages(item.album_url);
-        let m = 0;
-        while (m < images.length) {
-            let image = images[m];
-            await Tupian.findOrCreate({
-                where: {
-                    name: image.name
-                },
-                defaults: {
-                    album_id: album[0].id,
-                    album_name: item.name,
-                    url: image.src
-                }
-            });
-            m++;
+        if (album[1]) {
+            album[0].update({ category: categorys[N] });
+            let images = await handleImages(item.album_url);
+            let m = 0;
+            while (m < images.length) {
+                let image = images[m];
+                await Tupian.findOrCreate({
+                    where: {
+                        name: image.name
+                    },
+                    defaults: {
+                        album_id: album[0].id,
+                        album_name: item.name,
+                        url: image.src
+                    }
+                });
+                m++;
+            }
         }
-        console.log(item.name, flag, categorys[N]);
         if (flag > 1000) {
             await new Promise((resolve, reject) => {
                 setTimeout(() => {
@@ -277,6 +278,7 @@ const handlePage = async(url) => {
                 }, 60 * 60 * 1000);
             });
         }
+        console.log(item.name, flag);
         flag++;
         n++;
     }
@@ -313,7 +315,7 @@ const main = async(_url, number) => {
 }
 
 const init = async() => {
-    let i = 0;
+    let i = 1;
     while (i < URLs.length) {
         N = i;
         URL = URLs[i] + PATHs[i];
