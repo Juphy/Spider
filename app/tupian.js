@@ -268,6 +268,7 @@ const handlePage = async(url) => {
                 });
                 m++;
             }
+            flag++;
         }
         if (flag > 1000) {
             await new Promise((resolve, reject) => {
@@ -279,7 +280,6 @@ const handlePage = async(url) => {
             });
         }
         console.log(item.name, flag);
-        flag++;
         n++;
     }
 }
