@@ -29,7 +29,7 @@ let tags = ['/meinvtag2_1.html',
     "/meinvtag46_1.html",
     "/meinvtag47_1.html"
 ];
-let number = 1;
+let number = 0;
 const getAlbums = async(url) => {
     let $, albums = [];
     try {
@@ -131,24 +131,27 @@ const main = async(url) => {
                 tags: []
             }
         });
-        let images = await handelImages(item.album_url);
-        album[0].update({
-            tags: images['TAGS']
-        })
-        let m = 0;
-        while (m < images.length) {
-            let image = images[m];
-            await Img.findOrCreate({
-                where: {
-                    name: image.name
-                },
-                defaults: {
-                    album_id: album[0].id,
-                    album_name: item.name,
-                    url: image.src
-                }
-            });
-            m++;
+        if (album[1]) {
+            let images = await handelImages(item.album_url);
+            album[0].update({
+                tags: images['TAGS']
+            })
+            let m = 0;
+            while (m < images.length) {
+                let image = images[m];
+                await Img.findOrCreate({
+                    where: {
+                        name: image.name
+                    },
+                    defaults: {
+                        album_id: album[0].id,
+                        album_name: item.name,
+                        url: image.src
+                    }
+                });
+                m++;
+            }
+            number++;
         }
         console.log(item.name, number);
         if (number > 1000) {
@@ -160,7 +163,6 @@ const main = async(url) => {
                 }, 1.5 * 60 * 60 * 1000);
             });
         }
-        number++;
         n++;
     }
 }
