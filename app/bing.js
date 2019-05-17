@@ -1,6 +1,8 @@
 let request = require("request-promise"),
     schedule = require('node-schedule'),
     cheerio = require("cheerio");
+const Sequelize = require("sequelize");
+const Op = Sequelize.Op;
 let { URL_BING: URL, BING: BING } = require("../config");
 let weibo = require("../main");
 
@@ -83,20 +85,34 @@ let main = async() => {
 // main();
 
 let refresh = async() => {
-    let datas = await request({
+    let data1 = await request({
+        url: 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=8&mkt=zh-CN',
+        headers: {
+            Cookie: '_EDGE_V=1; MUID=0E7B9FA5363A6B261D3092E237146A96; MUIDB=0E7B9FA5363A6B261D3092E237146A96; SRCHD=AF=NOFORM; SRCHUID=V=2&GUID=3BF19352E6FB4D2ABE650148171AD0A8&dmnchg=1; _UR=MC=1; _ITAB=STAB=TR; ClarityID=50838af0eab345ec9bc900fe9f69b00e; ai_user=8e1IS|2019-04-23T11:35:41.830Z; SNRHOP=I=&TS=; ipv6=hit=1558068175235&t=4; _EDGE_S=mkt=zh-cn&SID=101522DBAC506D0E2D7A2F84AD7E6CEF; SRCHUSR=DOB=20190423&T=1558064586000; OID=ARABMmHCj2y80dIqZgSxhutSoEI7-lurR7MR6-G4txg06EGnWKDz7gvSKykK4OE7voFgJaT2VrS7bj1VK5YSG06l; ENSEARCH=BENVER=1; _SS=SID=101522DBAC506D0E2D7A2F84AD7E6CEF&bIm=087252&HV=1558064729; ULC=P=CA07|5:2&H=CA07|5:2&T=CA07|5:2:4; SRCHHPGUSR=CW=1880&CH=540&DPR=1&UTC=480&WTS=63693661377',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36'
+        },
+        transform: data => {
+            data = JSON.parse(data);
+            return data['images']
+        }
+    });
+    let data2 = await request({
         url: 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=8&mkt=zh-CN',
         transform: data => {
             data = JSON.parse(data);
             return data['images']
         }
     });
+    let datas = data1.concat(data2);
     let i = 0;
     while (i < datas.length) {
         let data = datas[i],
             url = BING + data.urlbase + '_1920x1080.jpg';
         let bing = await Bing.findOne({
             where: {
-                name: data['copyright']
+                url: {
+                    [Op.like]: '%' + data['urlbase'].split('_')[0] + '%'
+                }
             }
         });
         if (!bing) {
@@ -139,7 +155,7 @@ let refresh = async() => {
 }
 
 const rule = new schedule.RecurrenceRule();
-rule.hour = [0, 11];
+rule.hour = [0, 12];
 rule.minute = [0];
 rule.second = [0];
 schedule.scheduleJob(rule, async() => {
