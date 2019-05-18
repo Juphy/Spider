@@ -141,7 +141,11 @@ const main = async(url) => {
                 tags.includes("帅气") ||
                 tags.includes('男')
             ) {
-                await album[0].destroy();
+                await Album.destroy({
+                    where: {
+                        id: album[0].id
+                    }
+                });
             } else {
                 let images = await handelImages(item.album_url);
                 album[0].update({
