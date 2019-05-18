@@ -175,13 +175,16 @@ const main = async(url) => {
                 tags.includes('男')
             ) {
                 let album_id = album[0].id;
-                let imgs = await Img.findAll({
+                await Img.destroy({
                     where: {
                         album_id
                     }
                 });
-                await imgs.destroy();
-                await album[0].destroy();
+                await Album.destroy({
+                    where: {
+                        id: album_id
+                    }
+                });
             }
         }
         console.log(item.name, number);
