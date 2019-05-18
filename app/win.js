@@ -132,26 +132,57 @@ const main = async(url) => {
             }
         });
         if (album[1]) {
-            let images = await handelImages(item.album_url);
-            album[0].update({
-                tags: images['TAGS']
-            })
-            let m = 0;
-            while (m < images.length) {
-                let image = images[m];
-                await Img.findOrCreate({
+            let tags = images['TAGS'];
+            if (tags.includes('明星') ||
+                tags.includes('小鲜肉') ||
+                tags.includes('电视剧') ||
+                tags.includes('剧照') ||
+                tags.includes('海报') ||
+                tags.includes("帅气") ||
+                tags.includes('男')
+            ) {
+                await album[0].destroy();
+            } else {
+                let images = await handelImages(item.album_url);
+                album[0].update({
+                    tags
+                })
+                let m = 0;
+                while (m < images.length) {
+                    let image = images[m];
+                    await Img.findOrCreate({
+                        where: {
+                            name: image.name
+                        },
+                        defaults: {
+                            album_id: album[0].id,
+                            album_name: item.name,
+                            url: image.src
+                        }
+                    });
+                    m++;
+                }
+                number++;
+            }
+        } else {
+            let tags = album[0].tags;
+            if (tags.includes('明星') ||
+                tags.includes('小鲜肉') ||
+                tags.includes('电视剧') ||
+                tags.includes('剧照') ||
+                tags.includes('海报') ||
+                tags.includes("帅气") ||
+                tags.includes('男')
+            ) {
+                let album_id = album[0].id;
+                let imgs = await Img.findAll({
                     where: {
-                        name: image.name
-                    },
-                    defaults: {
-                        album_id: album[0].id,
-                        album_name: item.name,
-                        url: image.src
+                        album_id
                     }
                 });
-                m++;
+                await imgs.destroy();
+                await album[0].destroy();
             }
-            number++;
         }
         console.log(item.name, number);
         if (number > 1000) {
