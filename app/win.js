@@ -109,7 +109,6 @@ const handelImages = async(album_url) => {
         } catch (e) {
             console.error(2, e);
         }
-
     }
     await fn(album_url);
     return images;
@@ -132,14 +131,16 @@ const main = async(url) => {
             }
         });
         if (album[1]) {
-            let tags = images['TAGS'];
-            if (tags.includes('明星') ||
-                tags.includes('小鲜肉') ||
-                tags.includes('电视剧') ||
-                tags.includes('剧照') ||
-                tags.includes('海报') ||
-                tags.includes("帅气") ||
-                tags.includes('男')
+            let tag = images['TAGS'];
+            if (tag.includes('明星') ||
+                tag.includes('小鲜肉') ||
+                tag.includes('电视剧') ||
+                tag.includes('剧照') ||
+                tag.includes('海报') ||
+                tag.includes("帅气") ||
+                tag.includes("小生") ||
+                tag.includes("帅哥") ||
+                tag.includes('男')
             ) {
                 await Album.destroy({
                     where: {
@@ -149,7 +150,7 @@ const main = async(url) => {
             } else {
                 let images = await handelImages(item.album_url);
                 album[0].update({
-                    tags
+                    tags: tag
                 })
                 let m = 0;
                 while (m < images.length) {
@@ -169,14 +170,42 @@ const main = async(url) => {
                 number++;
             }
         } else {
-            let tags = album[0].tags;
-            if (tags.includes('明星') ||
-                tags.includes('小鲜肉') ||
-                tags.includes('电视剧') ||
-                tags.includes('剧照') ||
-                tags.includes('海报') ||
-                tags.includes("帅气") ||
-                tags.includes('男')
+            let $;
+            try {
+                $ = await request({
+                    url: album[0].album_url,
+                    headers: {
+                        Cookie: COOKIE,
+                        "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/53'
+                    },
+                    transform: (body) => {
+                        return cheerio.load(body);
+                    }
+                }).catch(e => {
+
+                });
+
+                if ($ && $("#pic-meinv").html()) {
+                    $('.label a').each((i, ele) => {
+                        let href = '/' + $(ele).attr('href').split('/').pop();
+                        if (tags.indexOf(href) < 0) {
+                            tags.push(href);
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error(2, e);
+            }
+            let tag = album[0].tags;
+            if (tag.includes('明星') ||
+                tag.includes('小鲜肉') ||
+                tag.includes('电视剧') ||
+                tag.includes('剧照') ||
+                tag.includes('海报') ||
+                tag.includes("帅气") ||
+                tag.includes("小生") ||
+                tag.includes("帅哥") ||
+                tag.includes('男')
             ) {
                 let album_id = album[0].id;
                 await Img.destroy({
