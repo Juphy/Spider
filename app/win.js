@@ -30,7 +30,7 @@ let tags = ['/meinvtag2_1.html',
     "/meinvtag47_1.html"
 ];
 let number = 0;
-const getAlbums = async(url) => {
+const getAlbums = async (url) => {
     let $, albums = [];
     try {
         $ = await request.get({
@@ -60,13 +60,13 @@ const getAlbums = async(url) => {
     return albums;
 }
 
-const handelImages = async(album_url) => {
+const handelImages = async (album_url) => {
     // console.log(album_url);
     let images = [],
         i = 1;
     let flag = album_url.split('/').pop().split('.')[0];
     // console.log(flag);
-    let fn = async(url) => {
+    let fn = async (url) => {
         let $;
         try {
             $ = await request({
@@ -114,7 +114,7 @@ const handelImages = async(album_url) => {
     return images;
 }
 
-const main = async(url) => {
+const main = async (url) => {
     let albums = await getAlbums(url);
     // console.log(albums);
     let n = 0;
@@ -131,6 +131,7 @@ const main = async(url) => {
             }
         });
         if (album[1]) {
+            let images = await handelImages(item.album_url);
             let tag = images['TAGS'];
             if (tag.includes('明星') ||
                 tag.includes('小鲜肉') ||
@@ -148,7 +149,6 @@ const main = async(url) => {
                     }
                 });
             } else {
-                let images = await handelImages(item.album_url);
                 album[0].update({
                     tags: tag
                 })
@@ -234,7 +234,7 @@ const main = async(url) => {
     }
 }
 
-const init = async() => {
+const init = async () => {
     let i = 0;
     while (i < tags.length) {
         await main(MM + tags[i])
@@ -244,10 +244,10 @@ const init = async() => {
 }
 
 const rule = new schedule.RecurrenceRule();
-rule.hour = [8];
+rule.hour = [18];
 rule.minute = [0];
 rule.second = [0];
-schedule.scheduleJob(rule, async() => {
+schedule.scheduleJob(rule, async () => {
     number = 1;
     console.log("重启时间", new Date().toLocaleString());
     init();
