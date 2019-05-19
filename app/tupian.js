@@ -14,13 +14,13 @@ const COOKIE = ["adClass0803=18; adClass0803=1; Hm_lvt_d6af4abc8836cbe6ecc10163a
     "UM_distinctid=16aa71e432161-0c2acb4ffa6751-6353160-100200-16aa71e4322192; Hm_lvt_5bebaeb4f49618f50265b2e764e4b5d8=1557581940; CNZZDATA1275074800=155059152-1557580986-https%253A%252F%252Fwww.aitaotu.com%252F%7C1557588710; Hm_lpvt_5bebaeb4f49618f50265b2e764e4b5d8=1557588709",
     "UM_distinctid=16aa71e432161-0c2acb4ffa6751-6353160-100200-16aa71e4322192; Hm_lvt_5bebaeb4f49618f50265b2e764e4b5d8=1557581940; CNZZDATA1275074800=155059152-1557580986-https%253A%252F%252Fwww.aitaotu.com%252F%7C1557588710; Hm_lpvt_5bebaeb4f49618f50265b2e764e4b5d8=1557588709"
 ];
-const URLs = [URL1, URL2, URL3, URL4, URL4];
-const PATHs = ["/ent/meinvtupian/", '/mmtp/', '/xgmn/', '/yule/meinv/', '/yule/rentiyishu/'];
-const categorys = ['2717', 'mmonly', 'gtmm', 'tp8', 'tp8'];
+const URLs = [URL1, URL2, URL3];
+const PATHs = ["/ent/meinvtupian/", '/mmtp/', '/xgmn/'];
+const categorys = ['2717', 'mmonly', 'gtmm'];
 let flag = 1;
 let URL, N = 0;
 
-const getAlbums = async(url) => {
+const getAlbums = async (url) => {
     let $, albums = [];
     try {
         let option = {
@@ -32,13 +32,8 @@ const getAlbums = async(url) => {
             },
             encoding: null,
             transform: body => {
-                if (N !== 3 && N !== 4) {
-                    body = iconv.decode(body, 'gb2312');
-                    return cheerio.load(body, { decodeEntities: false });
-                } else {
-                    body = iconv.decode(body, 'utf8');
-                    return cheerio.load(body, { decodeEntities: false });
-                }
+                body = iconv.decode(body, 'gb2312');
+                return cheerio.load(body, { decodeEntities: false });
             }
         }
         $ = await request(option);
@@ -91,44 +86,15 @@ const getAlbums = async(url) => {
                 })
             }
             break;
-        case 3:
-            if ($ && $('.m-list').html()) {
-                $('.m-list ul li a').each((o, ele) => {
-                    let album_url = URLs[N] + $(ele).attr('href'),
-                        $img = $(ele).find('img');
-                    albums.push({
-                        album_url,
-                        url: $img.attr('data-original'),
-                        name: $img.attr('alt')
-                    })
-
-                })
-            }
-            break;
-        case 4:
-            if ($ && $('.m-list').html()) {
-                $('.m-list ul li a').each(async(o, ele) => {
-                    let album_url = URLs[N] + $(ele).attr('href'),
-                        $img = $(ele).find('img');
-                    albums.push({
-                        album_url,
-                        url: $img.attr('data-original'),
-                        name: $img.attr('alt')
-                    })
-
-                })
-            }
-            break;
     }
-
     return albums;
 }
 
-const handleImages = async(album_url) => {
+const handleImages = async (album_url) => {
     let images = [],
         i = 1,
         b = album_url.split('.');
-    let fn = async(url) => {
+    let fn = async (url) => {
         let $;
         try {
             $ = await request({
@@ -140,13 +106,8 @@ const handleImages = async(album_url) => {
                 },
                 encoding: null,
                 transform: (body) => {
-                    if (N !== 3 && N !== 4) {
-                        body = iconv.decode(body, 'gb2312');
-                        return cheerio.load(body, { decodeEntities: false });
-                    } else {
-                        body = iconv.decode(body, 'utf8');
-                        return cheerio.load(body, { decodeEntities: false });
-                    }
+                    body = iconv.decode(body, 'gb2312');
+                    return cheerio.load(body, { decodeEntities: false });
                 }
             }).catch(e => {
 
@@ -179,18 +140,6 @@ const handleImages = async(album_url) => {
                         src = URLs[N] + $('.imagepic img').attr('src');
                     }
                     break;
-                case 3:
-                    if ($ && $('.pic-main').html()) {
-                        name = $('.pic-main a img').attr('alt').split(' ')[0] + `(${i})`;
-                        src = $('.pic-main a img').attr('src');
-                    }
-                    break;
-                case 4:
-                    if ($ && $('.pic-main').html()) {
-                        name = $('.pic-main a img').attr('alt').split(' ')[0] + `(${i})`;
-                        src = $('.pic-main a img').attr('src');
-                    }
-                    break;
             }
             if (name && src) {
                 images.push({ name, src });
@@ -207,37 +156,11 @@ const handleImages = async(album_url) => {
     return images;
 }
 
-const handlePage = async(url) => {
+const handlePage = async (url) => {
     let albums = await getAlbums(url);
     let n = 0;
     while (n < albums.length) {
         let item = albums[n];
-        let tags = [];
-        if (N === 3 || N === 4) {
-            let $ = await request({
-                url: item['album_url'],
-                headers: {
-                    Cookie: COOKIE[N],
-                    Referer: URL,
-                    "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/53'
-                },
-                encoding: null,
-                transform: (body) => {
-                    if (N !== 3 && N !== 4) {
-                        body = iconv.decode(body, 'gb2312');
-                        return cheerio.load(body, { decodeEntities: false });
-                    } else {
-                        body = iconv.decode(body, 'utf8');
-                        return cheerio.load(body, { decodeEntities: false });
-                    }
-                }
-            }).catch(e => {
-
-            })
-            $('.pic-l a').each((i, el) => {
-                tags.push($(el).text());
-            });
-        }
         let album = await Album.findOrCreate({
             where: { name: item.name },
             defaults: {
@@ -247,7 +170,7 @@ const handlePage = async(url) => {
                 height: item.height,
                 create_time: new Date(),
                 category: categorys[N],
-                tags: (N === 3 || N === 4) ? tags : item.tags
+                tags: item.tags
             }
         });
         if (album[1]) {
@@ -284,7 +207,7 @@ const handlePage = async(url) => {
     }
 }
 
-const main = async(_url, number) => {
+const main = async (_url, number) => {
     let n = 1;
     while (n < number) {
         let url;
@@ -301,24 +224,20 @@ const main = async(_url, number) => {
                 case 2:
                     url = _url + `list_1_${n}.html`;
                     break;
-                case 3:
-                    url = _url + `list_${n}.html`;
-                    break;
-                case 4:
-                    url = _url + `list_${n}.html`;
-                    break;
             }
         }
+        console.log(url);
         await handlePage(url);
         n++;
     }
 }
 
-const init = async() => {
-    let i = 1;
+const init = async () => {
+    let i = 2;
     while (i < URLs.length) {
         N = i;
         URL = URLs[i] + PATHs[i];
+        console.log(URL);
         let $ = await request({
             url: URL,
             headers: {
@@ -326,8 +245,10 @@ const init = async() => {
                 Referer: URL,
                 "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/53'
             },
+            encoding: null,
             transform: body => {
-                return cheerio.load(body);
+                body = iconv.decode(body, 'gb2312');
+                return cheerio.load(body, { decodeEntities: false });
             }
         });
         let number;
@@ -343,23 +264,15 @@ const init = async() => {
                 }
                 break;
             case 2:
+                console.log($('.page ul').html());
                 if ($ && $('.page').html()) {
                     $('.page ul li').each((o, ele) => {
                         let $a = $(ele).find('a');
                         if ($a.text() === '末页') {
                             number = $a.attr('href').split('.')[0].split('_').pop();
+
                         }
                     });
-                }
-                break;
-            case 3:
-                if ($ && $('.page').html()) {
-                    number = $('.page a').last().attr('href').split('.')[0].split('_').pop();
-                }
-                break;
-            case 4:
-                if ($ && $('.page').html()) {
-                    number = $('.page a').last().attr('href').split('.')[0].split('_').pop();
                 }
                 break;
         }
