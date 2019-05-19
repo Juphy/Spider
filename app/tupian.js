@@ -1,7 +1,7 @@
 let cheerio = require("cheerio"),
     request = require("request-promise"),
     iconv = require('iconv-lite'),
-    { URL_2717: URL1, URL_mmonly: URL2, URL_gtmm: URL3, URL_tp8: URL4 } = require("../config");
+    { URL_2717: URL1, URL_mmonly: URL2, URL_gtmm: URL3, URL_ilovgou: URL4 } = require("../config");
 
 const {
     Album,
@@ -11,29 +11,44 @@ const {
 const COOKIE = ["adClass0803=18; adClass0803=1; Hm_lvt_d6af4abc8836cbe6ecc10163af1ed92e=1557565607,1557565978,1557566051; Hm_lpvt_d6af4abc8836cbe6ecc10163af1ed92e=1557570200",
     "Hm_lvt_418404b216c475621299c2d1de88748a=1557832982,1557982648; Hm_lpvt_418404b216c475621299c2d1de88748a=1557982796",
     "UM_distinctid=16aa6bccfc22c9-0db8c8eb6d4ab5-6353160-100200-16aa6bccfc3270; __51cke__=; Hm_lvt_5f71360d4e4b92b6287018e6313c6633=1557575022,1557581928; CNZZDATA3482847=cnzz_eid%3D1278992741-1557575530-%26ntime%3D1557586407; __tins__6747931=%7B%22sid%22%3A%201557590406331%2C%20%22vd%22%3A%201%2C%20%22expires%22%3A%201557592206331%7D; __51laig__=30; Hm_lpvt_5f71360d4e4b92b6287018e6313c6633=1557590406",
-    "UM_distinctid=16aa71e432161-0c2acb4ffa6751-6353160-100200-16aa71e4322192; Hm_lvt_5bebaeb4f49618f50265b2e764e4b5d8=1557581940; CNZZDATA1275074800=155059152-1557580986-https%253A%252F%252Fwww.aitaotu.com%252F%7C1557588710; Hm_lpvt_5bebaeb4f49618f50265b2e764e4b5d8=1557588709",
-    "UM_distinctid=16aa71e432161-0c2acb4ffa6751-6353160-100200-16aa71e4322192; Hm_lvt_5bebaeb4f49618f50265b2e764e4b5d8=1557581940; CNZZDATA1275074800=155059152-1557580986-https%253A%252F%252Fwww.aitaotu.com%252F%7C1557588710; Hm_lpvt_5bebaeb4f49618f50265b2e764e4b5d8=1557588709"
+    "UM_distinctid=16acfec618115f-03fe5258a8c812-353166-100200-16acfec6183107; CNZZDATA3825213=cnzz_eid%3D439392186-1558264575-null%26ntime%3D1558264575; Hm_lvt_c52c8b95251f915f7d96caa92488e0d7=1558266537; Hm_lpvt_c52c8b95251f915f7d96caa92488e0d7=1558266636",
+    "UM_distinctid=16acfec618115f-03fe5258a8c812-353166-100200-16acfec6183107; CNZZDATA3825213=cnzz_eid%3D439392186-1558264575-null%26ntime%3D1558264575; Hm_lvt_c52c8b95251f915f7d96caa92488e0d7=1558266537; Hm_lpvt_c52c8b95251f915f7d96caa92488e0d7=1558266636"
 ];
-const URLs = [URL1, URL2, URL3];
+const URLs = [URL1, URL2, URL3, URL4,];
 const PATHs = ["/ent/meinvtupian/", '/mmtp/', '/xgmn/'];
-const categorys = ['2717', 'mmonly', 'gtmm'];
+const categorys = ['2717', 'mmonly', 'gtmm', 'ilovgou'];
 let flag = 1;
 let URL, N = 0;
 
 const getAlbums = async (url) => {
     let $, albums = [];
     try {
-        let option = {
-            url,
-            headers: {
-                Cookie: COOKIE[N],
-                Referer: URL,
-                "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/53'
-            },
-            encoding: null,
-            transform: body => {
-                body = iconv.decode(body, 'gb2312');
-                return cheerio.load(body, { decodeEntities: false });
+        let option;
+        if (N !== 3) {
+            option = {
+                url,
+                headers: {
+                    Cookie: COOKIE[N],
+                    Referer: URL,
+                    "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/53'
+                },
+                encoding: null,
+                transform: body => {
+                    body = iconv.decode(body, 'gb2312');
+                    return cheerio.load(body, { decodeEntities: false });
+                }
+            }
+        } else {
+            option = {
+                url,
+                headers: {
+                    Cookie: COOKIE[N],
+                    Referer: URL,
+                    "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/53'
+                },
+                transform: body => {
+                    return cheerio.load(body);
+                }
             }
         }
         $ = await request(option);
@@ -86,6 +101,21 @@ const getAlbums = async (url) => {
                 })
             }
             break;
+        case 3:
+            if ($ && $('.piclist').html()) {
+                $('.piclist li a').each((o, ele) => {
+                    let album_url = URLs[N] + $(ele).attr('href'),
+                        $img = $(ele).find('img');
+                    albums.push({
+                        album_url,
+                        url: URLs[N] + $img.attr('src'),
+                        name: $img.attr('alt'),
+                        tags: []
+                    })
+
+                })
+            }
+            break;
     }
     return albums;
 }
@@ -97,21 +127,38 @@ const handleImages = async (album_url) => {
     let fn = async (url) => {
         let $;
         try {
-            $ = await request({
-                url,
-                headers: {
-                    Cookie: COOKIE[N],
-                    Referer: URL,
-                    "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/53'
-                },
-                encoding: null,
-                transform: (body) => {
-                    body = iconv.decode(body, 'gb2312');
-                    return cheerio.load(body, { decodeEntities: false });
-                }
-            }).catch(e => {
+            if (N !== 3) {
+                $ = await request({
+                    url,
+                    headers: {
+                        Cookie: COOKIE[N],
+                        Referer: URL,
+                        "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/53'
+                    },
+                    encoding: null,
+                    transform: (body) => {
+                        body = iconv.decode(body, 'gb2312');
+                        return cheerio.load(body, { decodeEntities: false });
+                    }
+                }).catch(e => {
 
-            });
+                });
+            } else {
+                $ = await request({
+                    url,
+                    headers: {
+                        Cookie: COOKIE[N],
+                        Referer: URL,
+                        "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/53'
+                    },
+                    transform: (body) => {
+                        return cheerio.load(body);
+                    }
+                }).catch(e => {
+
+                });
+            }
+
             let name, src;
             switch (N) {
                 case 0:
@@ -138,6 +185,13 @@ const handleImages = async (album_url) => {
                     if ($ && $('.imagepic').html()) {
                         name = $('.imagepic img').attr('alt') + `(${i})`;
                         src = URLs[N] + $('.imagepic img').attr('src');
+                    }
+                    break;
+                case 3:
+                    if ($ && $('.articleV4Body').html()) {
+                        name = $('.articleV4Body img').attr('alt');
+                        src = URLs[N] + $('.articleV4Body img').attr('src');
+                        images['tags'] = $('.articleV4Info a').attr('title');
                     }
                     break;
             }
@@ -176,6 +230,11 @@ const handlePage = async (url) => {
         if (album[1]) {
             album[0].update({ category: categorys[N] });
             let images = await handleImages(item.album_url);
+            if (N === 3) {
+                album[0].update({
+                    tags: images['tags']
+                })
+            }
             let m = 0;
             while (m < images.length) {
                 let image = images[m];
@@ -224,9 +283,10 @@ const main = async (_url, number) => {
                 case 2:
                     url = _url + `list_1_${n}.html`;
                     break;
+                case 3:
+                    url = _url + `index_${n}.html`;
             }
         }
-        console.log(url);
         await handlePage(url);
         n++;
     }
@@ -234,10 +294,57 @@ const main = async (_url, number) => {
 
 const init = async () => {
     let i = 2;
+    let hrefs = [];
     while (i < URLs.length) {
         N = i;
-        URL = URLs[i] + PATHs[i];
-        console.log(URL);
+        if (i === 3) {
+            let $ = await request({
+                url: URLs[i],
+                headers: {
+                    Cookie: COOKIE[N],
+                    Referer: URLs[i],
+                    "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/53'
+                },
+                transform: body => {
+                    return cheerio.load(body);
+                }
+            });
+            if ($ && $('.SeaNav').html()) {
+                $('.SeaNav ul li a').each((i, ele) => {
+                    if (i < 7) {
+                        hrefs.push($(ele).attr('href'));
+                    }
+                });
+            }
+
+            let j = 0;
+            while (j < hrefs.length) {
+                URL = URLs[i] + hrefs[j];
+                let $ = await request({
+                    url: URL,
+                    headers: {
+                        Cookie: COOKIE[N],
+                        Referer: URLs[i],
+                        "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/53'
+                    },
+                    transform: body => {
+                        return cheerio.load(body);
+                    }
+                });
+                let _number;
+                if ($ && $('.page').html()) {
+                    $('.page a').each((i, ele) => {
+                        if ($(ele).text() === '尾页') {
+                            _number = $(ele).attr('href').split('.')[0].split('_').pop();
+                        }
+                    })
+                }
+                await main(URL, _number);
+                j++;
+            }
+        } else {
+            URL = URLs[i] + PATHs[i];
+        }
         let $ = await request({
             url: URL,
             headers: {
@@ -264,7 +371,6 @@ const init = async () => {
                 }
                 break;
             case 2:
-                console.log($('.page ul').html());
                 if ($ && $('.page').html()) {
                     $('.page ul li').each((o, ele) => {
                         let $a = $(ele).find('a');
@@ -280,4 +386,14 @@ const init = async () => {
         i++;
     }
 }
+// const rule = new schedule.RecurrenceRule();
+// rule.hour = [18];
+// rule.minute = [0];
+// rule.second = [0];
+// schedule.scheduleJob(rule, async () => {
+//     flag = 1;
+//     N = 0;
+//     console.log("重启时间", new Date().toLocaleString());
+//     init();
+// })
 init();
