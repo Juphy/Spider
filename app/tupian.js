@@ -293,9 +293,9 @@ const main = async (_url, number) => {
 }
 
 const init = async () => {
-    let i = 2;
+    let i = 0;
     let hrefs = [];
-    while (i < URLs.length) {
+    while (i < (URLs.length - 1)) {
         N = i;
         if (i === 3) {
             let $ = await request({
