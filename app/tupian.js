@@ -386,14 +386,14 @@ const init = async () => {
         i++;
     }
 }
-// const rule = new schedule.RecurrenceRule();
-// rule.hour = [18];
-// rule.minute = [0];
-// rule.second = [0];
-// schedule.scheduleJob(rule, async () => {
-//     flag = 1;
-//     N = 0;
-//     console.log("重启时间", new Date().toLocaleString());
-//     init();
-// })
+const rule = new schedule.RecurrenceRule();
+rule.hour = [18];
+rule.minute = [0];
+rule.second = [0];
+schedule.scheduleJob(rule, async () => {
+    flag = 1;
+    N = 0;
+    console.log("重启时间", new Date().toLocaleString());
+    init();
+})
 init();
