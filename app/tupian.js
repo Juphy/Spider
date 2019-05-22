@@ -15,13 +15,13 @@ const COOKIE = ["adClass0803=18; adClass0803=1; Hm_lvt_d6af4abc8836cbe6ecc10163a
     "UM_distinctid=16acfec618115f-03fe5258a8c812-353166-100200-16acfec6183107; CNZZDATA3825213=cnzz_eid%3D439392186-1558264575-null%26ntime%3D1558264575; Hm_lvt_c52c8b95251f915f7d96caa92488e0d7=1558266537; Hm_lpvt_c52c8b95251f915f7d96caa92488e0d7=1558266636",
     "UM_distinctid=16acfec618115f-03fe5258a8c812-353166-100200-16acfec6183107; CNZZDATA3825213=cnzz_eid%3D439392186-1558264575-null%26ntime%3D1558264575; Hm_lvt_c52c8b95251f915f7d96caa92488e0d7=1558266537; Hm_lpvt_c52c8b95251f915f7d96caa92488e0d7=1558266636"
 ];
-const URLs = [URL1, URL2, URL3, URL4,];
+const URLs = [URL1, URL2, URL3, URL4, ];
 const PATHs = ["/ent/meinvtupian/", '/mmtp/', '/xgmn/'];
 const categorys = ['2717', 'mmonly', 'gtmm', 'ilovgou'];
 let flag = 1;
 let URL, N = 0;
 
-const getAlbums = async (url) => {
+const getAlbums = async(url) => {
     let $, albums = [];
     try {
         let option;
@@ -121,11 +121,11 @@ const getAlbums = async (url) => {
     return albums;
 }
 
-const handleImages = async (album_url) => {
+const handleImages = async(album_url) => {
     let images = [],
         i = 1,
         b = album_url.split('.');
-    let fn = async (url) => {
+    let fn = async(url) => {
         let $;
         try {
             if (N !== 3) {
@@ -211,7 +211,7 @@ const handleImages = async (album_url) => {
     return images;
 }
 
-const handlePage = async (url) => {
+const handlePage = async(url) => {
     let albums = await getAlbums(url);
     let n = 0;
     while (n < albums.length) {
@@ -251,6 +251,7 @@ const handlePage = async (url) => {
                 });
                 m++;
             }
+            console.log(item.name, flag);
             flag++;
         }
         if (flag > 1000) {
@@ -262,12 +263,11 @@ const handlePage = async (url) => {
                 }, 60 * 60 * 1000);
             });
         }
-        console.log(item.name, flag);
         n++;
     }
 }
 
-const main = async (_url, number) => {
+const main = async(_url, number) => {
     let n = 1;
     while (n < number) {
         let url;
@@ -293,7 +293,7 @@ const main = async (_url, number) => {
     }
 }
 
-const init = async () => {
+const init = async() => {
     let i = 0;
     let hrefs = [];
     while (i < (URLs.length - 1)) {
@@ -391,7 +391,7 @@ const rule = new schedule.RecurrenceRule();
 rule.hour = [18];
 rule.minute = [0];
 rule.second = [0];
-schedule.scheduleJob(rule, async () => {
+schedule.scheduleJob(rule, async() => {
     flag = 1;
     N = 0;
     console.log("重启时间", new Date().toLocaleString());
