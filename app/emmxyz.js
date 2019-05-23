@@ -14,7 +14,7 @@ let index = 1; // 自增页数
 
 const getAlbums = async() => {
     let datas = await request({
-        url: `${EMMXYZ}/api/v1/belles?pageSize=20&pageNumber=${index}&_=1555846098646`,
+        url: `${EMMXYZ}/api/v1/belles?pageSize=20&pageNumber=${index}&_=` + new Date().getTime(),
         headers: {
             "cache-control": "no-cache",
             "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -40,39 +40,38 @@ const handleAlbums = async(datas) => {
             }
         });
         if (!album) {
-            let result;
-            try {
-                result = await weibo.uploadImg(`${EMMXYZ}${data.Image}`);
-            } catch (e) {
-                console.log('cookie error', result)
-                weibo.TASK && weibo.TASK.cancel();
-                await weibo.loginto();
-                result = await weibo.uploadImg(`${EMMXYZ}${data.Image}`);
-            }
-            if (result.pid && result.width && result.height) {
-                album = await Album.create({
-                    name: data.Title,
-                    album_url: `${EMMXYZ}${data.URL}`,
-                    url: `${EMMXYZ}${data.Image}`,
-                    sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
-                    width: result.width,
-                    height: result.height,
-                    create_time: new Date(data.CreatedAt),
-                    category: 'emmxyz',
-                    table: "web_images"
-                });
-                albums.push({
+            // let result;
+            // try {
+            //     result = await weibo.uploadImg(`${EMMXYZ}${data.Image}`);
+            // } catch (e) {
+            //     console.log('cookie error', result)
+            //     weibo.TASK && weibo.TASK.cancel();
+            //     await weibo.loginto();
+            //     result = await weibo.uploadImg(`${EMMXYZ}${data.Image}`);
+            // }
+            // if (result.pid && result.width && result.height) {
+            album = await Album.create({
+                name: data.Title,
+                album_url: `${EMMXYZ}${data.URL}`,
+                url: `${EMMXYZ}${data.Image}`,
+                // sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
+                // width: result.width,
+                // height: result.height,
+                create_time: new Date(data.CreatedAt),
+                category: 'emmxyz',
+            });
+            albums.push({
                     album_name: album.name,
                     album_url: album.album_url,
                     album_id: album.id
                 })
-            }
+                // }
         } else {
-            // albums.push({
-            //     album_name: album.name,
-            //     album_url: album.album_url,
-            //     album_id: album.id
-            // })
+            albums.push({
+                album_name: album.name,
+                album_url: album.album_url,
+                album_id: album.id
+            })
         }
         i++;
     }
@@ -118,33 +117,34 @@ const getImgs = async(datas) => {
                 }
             });
             if (!picture) {
-                let result;
-                try {
-                    result = await weibo.uploadImg(EMMXYZ + images[j]);
-                } catch (e) {
-                    console.log('cookie error', result);
-                    weibo.TASK && weibo.TASK.cancel();
-                    await weibo.loginto();
-                    result = await weibo.uploadImg(EMMXYZ + images[j]);
-                }
-                if (result.pid && result.width && result.height) {
-                    await Picture.create({
+                // let result;
+                // try {
+                //     result = await weibo.uploadImg(EMMXYZ + images[j]);
+                // } catch (e) {
+                //     console.log('cookie error', result);
+                //     weibo.TASK && weibo.TASK.cancel();
+                //     await weibo.loginto();
+                //     result = await weibo.uploadImg(EMMXYZ + images[j]);
+                // }
+                // if (result.pid && result.width && result.height) {
+                await Picture.create({
                         name: `${data.album_name}_${j}`,
                         album_id: data.album_id,
-                        width: result.width,
-                        height: result.height,
+                        // width: result.width,
+                        // height: result.height,
                         album_name: data.album_name,
-                        sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
+                        // sina_url: `http://ww1.sinaimg.cn/large/${result.pid}.jpg`,
                         url: EMMXYZ + images[j],
                         create_time: new Date(),
                         tags: imgs.tags
                     }).catch(err => {
                         console.log(err);
                     })
-                }
+                    // }
             }
             j++;
         }
+        console.log(data.album_name);
         n++;
     }
 }
@@ -170,7 +170,7 @@ schedule.scheduleJob(rule, async() => {
     console.log("重启时间", new Date().toLocaleString());
     await main();
 })
-
+main();
 // const main = async ()=>{
 //     let index = 1; // 自增页数
 //     let flag = true;
