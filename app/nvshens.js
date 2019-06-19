@@ -274,7 +274,7 @@ const init = async() => {
 const foo = async() => {
     let INDEX = 10000,
         number = 0;
-    while (INDEX < 31000) {
+    while (INDEX < 32000) {
         let album_url = NVSHEN + '/g/' + INDEX + '/',
             $;
         try {
@@ -314,7 +314,7 @@ const foo = async() => {
                     name: album_name
                 }
             });
-            if (!album && albums_url && albums_url.lastIndexOf('http') === 0) {
+            if ((!album || !album.url) && albums_url && albums_url.lastIndexOf('http') === 0) {
                 let _$;
                 try {
                     _$ = await request({
@@ -335,7 +335,7 @@ const foo = async() => {
                 if (_$ && _$('#photo_list ul').html()) {
                     _$('#photo_list ul li').each((ind, item) => {
                         let href = $(item).find('.igalleryli_link').attr("href"),
-                            cover = $(item).find('.igalleryli_link img').attr("src");
+                            cover = $(item).find('.igalleryli_link img').attr("data-original");
                         if (href.includes(INDEX)) {
                             url = cover;
                         }
