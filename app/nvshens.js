@@ -282,9 +282,9 @@ const init = async() => {
 // })
 
 const foo = async() => {
-    let INDEX = 10000,
+    let INDEX = 32000,
         number = 0;
-    while (INDEX < 32000) {
+    while (INDEX < 10000) {
         let album_url = NVSHEN + "/g/" + INDEX + "/",
             $;
         try {
@@ -311,8 +311,10 @@ const foo = async() => {
         if ($ && $(".albumTitle").html()) {
             $("#utag li a").each(async(i, ele) => {
                 if (i === 0) {
-                    _albums_url = NVSHEN + $(ele).attr("href");
-                    albums_url = NVSHEN + $(ele).attr("href") + "album/";
+                    let href = $(ele).attr("href");
+                    _albums_url = href.lastIndexOf("http") === 0 ? href : NVSHEN + href;
+                    albums_url =
+                        href.lastIndexOf("http") === 0 ? href : NVSHEN + href + "album/";
                 }
                 if ($(ele).text() !== "") {
                     tags.push($(ele).text());
@@ -329,7 +331,6 @@ const foo = async() => {
                 albums_url &&
                 albums_url.lastIndexOf("http") === 0
             ) {
-                console.log(albums_url);
                 let _$;
                 try {
                     _$ = await request({
@@ -378,13 +379,26 @@ const foo = async() => {
                         } catch (error) {
                             console.error(3, INDEX, error);
                         }
-                        if ($ && _$(".photo_ul").html()) {
+                        if (_$ && _$(".photo_ul").html()) {
                             _$(".photo_ul li").each((ind, item) => {
                                 let href = $(item)
                                     .find(".igalleryli_link")
                                     .attr("href"),
                                     cover = $(item)
                                     .find(".igalleryli_link img")
+                                    .attr("data-original");
+                                if (href.includes(INDEX)) {
+                                    url = cover;
+                                }
+                            });
+                        }
+                        if (_$ && _$("#listdiv").html()) {
+                            _$("#listdiv ul .galleryli").each((ind, item) => {
+                                let href = $(item)
+                                    .find(".galleryli_link")
+                                    .attr("href"),
+                                    cover = $(item)
+                                    .find(".galleryli_link img")
                                     .attr("data-original");
                                 if (href.includes(INDEX)) {
                                     url = cover;
