@@ -282,9 +282,9 @@ const init = async() => {
 // })
 
 const foo = async() => {
-    let INDEX = 32000,
+    let INDEX = 10000,
         number = 0;
-    while (INDEX < 10000) {
+    while (INDEX < 32000) {
         let album_url = NVSHEN + "/g/" + INDEX + "/",
             $;
         try {
