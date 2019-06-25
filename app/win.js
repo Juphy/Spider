@@ -134,16 +134,23 @@ const main = async (url) => {
             let images = await handelImages(item.album_url);
             let tag = images['TAGS'], _tag = tag.toString();
             if (_tag.includes('明星') ||
+                _tag.includes('欧美')||
+                _tag.includes('时装秀')||
+                _tag.includes('明星') ||
                 _tag.includes('小鲜肉') ||
                 _tag.includes('电视剧') ||
                 _tag.includes('剧照') ||
                 _tag.includes('海报') ||
-                _tag.includes("帅气") ||
                 _tag.includes("小生") ||
                 _tag.includes("帅哥") ||
                 _tag.includes('男')||
                 _tag.includes('吐槽')||
-                _tag.includes('创意')
+                _tag.includes('创意')||
+                _tag.includes("动图")||
+                _tag.includes("GIF")|| 
+                _tag.includes("有趣")||
+                _tag.includes('电影')||
+                _tag.includes('文字')
             ) {
                 await Album.destroy({
                     where: {
