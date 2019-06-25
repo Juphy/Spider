@@ -132,16 +132,16 @@ const main = async (url) => {
         });
         if (album[1]) {
             let images = await handelImages(item.album_url);
-            let tag = images['TAGS'];
-            if (tag.includes('明星') ||
-                tag.includes('小鲜肉') ||
-                tag.includes('电视剧') ||
-                tag.includes('剧照') ||
-                tag.includes('海报') ||
-                tag.includes("帅气") ||
-                tag.includes("小生") ||
-                tag.includes("帅哥") ||
-                tag.includes('男')
+            let tag = images['TAGS'], _tag = tag.toString();
+            if (_tag.includes('明星') ||
+                _tag.includes('小鲜肉') ||
+                _tag.includes('电视剧') ||
+                _tag.includes('剧照') ||
+                _tag.includes('海报') ||
+                _tag.includes("帅气") ||
+                _tag.includes("小生") ||
+                _tag.includes("帅哥") ||
+                _tag.includes('男')
             ) {
                 await Album.destroy({
                     where: {
