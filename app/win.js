@@ -141,7 +141,9 @@ const main = async (url) => {
                 _tag.includes("帅气") ||
                 _tag.includes("小生") ||
                 _tag.includes("帅哥") ||
-                _tag.includes('男')
+                _tag.includes('男')||
+                _tag.includes('吐槽')||
+                _tag.includes('创意')
             ) {
                 await Album.destroy({
                     where: {
