@@ -1,6 +1,6 @@
-const WeiBo = require('./weibo/index'),
+const Imgur = require('./imgur/index'),
     config = require('./config');
 
-let weibo = new WeiBo(config);
+let imgur = new Imgur(config);
 
-module.exports = weibo;
+module.exports = imgur;
