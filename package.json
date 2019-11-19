@@ -11,7 +11,9 @@
   "license": "ISC",
   "devDependencies": {},
   "dependencies": {
+    "async": "^3.1.0",
     "axios": "^0.18.0",
+    "bagpipe": "^0.3.5",
     "cheerio": "^1.0.0-rc.3",
     "iconv-lite": "^0.4.24",
     "ioredis": "^4.9.0",
