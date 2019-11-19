@@ -128,15 +128,13 @@ const list = async () => {
     let res = await Bing.findAndCountAll({
         order: [
             ['day', 'DESC']
-        ],
-        offset: (page - 1) * pagesize,
-        limit: pagesize * 1
+        ]
     });
 
     for (let i = 0; i < res['rows'].length; i++) {
         let bing = res['rows'][i];
         let imgPath = bing.name.split(' (')[0] + '.jpg';
-        bagpipe.push(downloadImage, bing.url, path.join(__dirname, "bing/" + imgPath), (err, data) => {
+        bagpipe.push(downloadImage, bing.url, path.resolve('/home/OneDrive/images/' + imgPath), (err, data) => {
             console.log(data)
         });
     }
