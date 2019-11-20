@@ -95,7 +95,6 @@ let refresh = async () => {
         }
     });
     let datas = data1.concat(data2);
-    console.log(datas);
     let i = 0;
     while (i < datas.length) {
         let data = datas[i],
@@ -111,6 +110,7 @@ let refresh = async () => {
             let date = data.enddate;
             await Bing.create({
                 name: data.copyright,
+                title: data.title,
                 width: 1920,
                 height: 1080,
                 url: url,
@@ -119,7 +119,8 @@ let refresh = async () => {
             });
         } else {
             bing.update({
-                url: url
+                url: url,
+                title: data.title
             })
         }
         i++;
