@@ -90,11 +90,21 @@ const get_credits = async () => {
     }
     console.log(result);
 }
-// get_image('UCcu01Z');
+get_image('aP7PrN1');
 
 // upload_image('https://lh3.googleusercontent.com/WFmjwc3jRmZaRoqcIwFlbjE2p7jcA48kiMAt_6MVakjs9n9cq95S-0BtKT2V983XcEdBDoLsQZYlnhxB24L-cQN_nont2PKUkrMhQb9I0dL4ocBu52e8w8G8kNkBkoRDE-9k2cFVgY1Ov0gppfZDNSl2vvRqYhfyDwG1QwnEiyoYpCa7ni4ip7tTg4O4Q13PztsMiNsC_6GLDwg0Ih9f4Qf-u5jYCH445iYAG9SRn3baZlXsIsvBEfGuxlubpdan5XNXoek7e9lD8FMMy7YZNu2rUUuXulcvjxpJtZjWgvwMK7Ik6ABpPLbAJEI8WpmRqBFA5yKlNw2DPidGYmisw-qiszljHA5CJuXVyHxhqO7kq5l1IOcUDuy1p1nCbq6xJBokElDIpbdvbapGfVHPmQHJUDtHIHk7gJ4JCgNZyNouT7p8iYYjetxO-VsSTiAsUyf8EsoXZPYqXi3nzZvjQVh-9J1mhTwP6dYtTtNnDPQTNfnVZwFUl61kAE9YwX6Oo69bB_ns-LBCo2XvO_Be21buztLRmEGA4N0WsclIwWIeB_JD8gH-O16lKlMMM8yjFv54G9cIBZt92eC21uPtjzXlkvgSREO5qdtXhM9nlXPAUOaDAD0t8YfGSY9Tb8cr5dIgqbNPubC_zRNsuWxsjyC_tSQUQE8nSsJGZBCLFSRp5uva9w5IaQ=w921-h1283-no', 'URL', 'test');
 
 // get_credits();
+const favorite_image = async (hash) => {
+    let result;
+    try {
+        result = await imgur.favorite_image(hash);
+    } catch (error) {
+        reult = error;
+    }
+    console.log(result);
+}
+favorite_image('aP7PrN1')
 
 const {
     Bing
@@ -139,4 +149,4 @@ const list = async () => {
         });
     }
 }
-list();
+// list();

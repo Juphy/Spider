@@ -1,5 +1,4 @@
-const request = require('request'),
-    querystring = require('querystring');
+const request = require('request');
 
 class Imgur {
     constructor(config) {
@@ -50,7 +49,7 @@ class Imgur {
     get_response(options) {
         return new Promise((resolve, reject) => {
             request(options, (error, response, body) => {
-                body = JSON.parse(body);
+                body = body ? JSON.parse(body) : error;
                 console.log(response.headers);
                 if (!error && response.statusCode == 200) {
                     resolve(body)
@@ -70,10 +69,10 @@ class Imgur {
         return this.get_response(options);
     }
 
-    async get_image(hash) {
+    async get_image(imageHash) {
         let options = {
             method: 'GET',
-            url: 'https://' + this.api + this.image + '/' + hash,
+            url: 'https://' + this.api + this.image + '/' + imageHash,
             headers: this.headers
         };
         return this.get_response(options);
@@ -81,19 +80,21 @@ class Imgur {
 
     /**
      * 
-     * @param {string} image- binary file, base64 data, a URL for an image
-     * @param {*} type 
-     * @param {*} title 
-     * @param {*} album 
-     * @param {*} name 
+     * @param {string} image - required. binary file, base64 data, a URL for an image
+     * @param {string} type - required. the type of the file that's being sent; file, base64 or URL 
+     * @param {string} title - this title of the image 
+     * @param {string} album - the id of the album you want to add the image to.{{albumHash}}
+     * @param {string} name - the name of the file, this is automatically detected if uploading a file width a POST and multipar/form-data
+     * @param {string} description - The description of the image
      */
-    async upload_image(image = '', type = '', title = '', album = '', name = '') {
+    async upload_image(image = '', type = '', title = '', album = '', name = '', description = '') {
         let formData = {};
         if (image) formData['image'] = imgae;
         if (type) formData['type'] = type;
         if (title) formData['image'] = title;
         if (album) formData['album'] = album;
         if (name) formData['name'] = name;
+        if (description) formData['description'] = description;
         let options = {
             method: 'POST',
             url: `https://${this.api}${this.image}`,
@@ -103,11 +104,71 @@ class Imgur {
         return this.get_response(options);
     }
 
-    async delete_image(hash) {
-        let option = {
+    async delete_image_unauthed(imageDeleteHash) {
+        let options = {
+            method: 'GET',
+            url: 'https://' + this.api + this.image + '/' + imageDeleteHash,
+            headers: {
+                Authorization: 'Client-ID ' + this.client_id
+            }
+        };
+        return this.get_response(options);
+    }
 
-        }
+    async delete_image_authed(imageHash) {
+        let options = {
+            method: 'GET',
+            url: 'https://' + this.api + this.image + '/' + imageHash,
+            headers: {
+                Authorization: 'Bearer ' + this.access_token
+            }
+        };
+        return this.get_response(options);
+    }
+
+    async update_image_noauthed(imageDeleteHash, title, description) {
+        let options = {
+            method: 'POST',
+            url: `https://${this.api}${this.image}/${imageDeleteHash}`,
+            headers: {
+                Authorization: 'Client-ID ' + this.client_id
+            },
+            formData: {
+                title,
+                description
+            }
+        };
+        return this.get_response(options);
+    }
+
+    async update_image_noauthed(imageHash, title, description) {
+        let options = {
+            method: 'POST',
+            url: `https://${this.api}${this.image}/${imageHash}`,
+            headers: {
+                Authorization: 'Bearer ' + this.access_token
+            },
+            formData: {
+                title,
+                description
+            }
+        };
+        return this.get_response(options);
+    }
+
+    async favorite_image(imageHash) {
+        let options = {
+            method: 'POST',
+            url: `https://${this.api}${this.image}/${imageHash}/favorite`,
+            headers: {
+                Authorization: 'Bearer ' + this.access_token
+            }
+        };
+        return this.get_response(options);
+    }
+
+    async generate_access_token(){
+        
     }
 }
-
 module.exports = Imgur;
