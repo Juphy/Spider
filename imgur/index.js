@@ -50,7 +50,7 @@ class Imgur {
         return new Promise((resolve, reject) => {
             request(options, (error, response, body) => {
                 body = body ? JSON.parse(body) : error;
-                console.log(response.headers);
+                // console.log(response.headers);
                 if (!error && response.statusCode == 200) {
                     resolve(body)
                 } else {
@@ -167,8 +167,64 @@ class Imgur {
         return this.get_response(options);
     }
 
-    async generate_access_token(){
-        
+    async generate_access_token() {
+        let options = {
+            method: 'POST',
+            url: `https://${this.api}oauth2/token`,
+            formData: {
+                refresh_token: '',
+                client_id: this.client_id,
+                client_secret: this.client_secret,
+                grant_type: 'refresh_token'
+            }
+        };
+        return this.get_response(options);
+    }
+
+    async account_base(username) {
+        let options = {
+            method: 'GET',
+            url: `https://${this.api}3/account/${username}`,
+            headers: {
+                Authorization: 'Client-ID ' + this.client_id
+            }
+        };
+        return this.get_response(options);
+    }
+
+    async account_block_status(username) {
+        let options = {
+            method: 'GET',
+            url: `https://${this.api}account/v1/${username}/block`,
+            headers: {
+                Authorization: 'Bearer ' + this.access_token,
+                Accept: 'application/vnd.api+json'
+            }
+        };
+        return this.get_response(options);
+    }
+
+    async account_blocks() {
+        let options = {
+            method: 'GET',
+            url: `https://${this.api}3/account/me/block`,
+            headers: {
+                Authorization: 'Bearer ' + this.access_token,
+                Accept: 'application/vnd.api+json'
+            }
+        };
+        return this.get_response(options);
+    }
+
+    async account_images() {
+        let options = {
+            method: 'GET',
+            url: `https://${this.api}3/account/me/images`,
+            headers: {
+                Authorization: 'Bearer ' + this.access_token
+            }
+        };
+        return this.get_response(options);
     }
 }
 module.exports = Imgur;

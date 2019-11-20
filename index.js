@@ -104,7 +104,18 @@ const favorite_image = async (hash) => {
     }
     console.log(result);
 }
-favorite_image('aP7PrN1')
+// favorite_image('aP7PrN1')
+
+const account_images = async () => {
+    let result;
+    try {
+        result = await imgur.account_images();
+    } catch (error) {
+        reult = error;
+    }
+    console.log(result);
+}
+account_images();
 
 const {
     Bing
