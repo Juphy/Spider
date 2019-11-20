@@ -7,6 +7,9 @@ class Imgur {
         this.access_token = config.access_token;
         this.api = config.api;
         this.image = config.image;
+        this.album = config.album;
+        this.account = config.account;
+        this.username = config.username;
         this.headers = {
             // Authorization: 'Client-ID ' + this.client_id
             Authorization: 'Bearer ' + this.access_token
@@ -44,7 +47,6 @@ class Imgur {
     //         }) 
     //     }
     // }
-
 
     get_response(options) {
         return new Promise((resolve, reject) => {
@@ -181,10 +183,10 @@ class Imgur {
         return this.get_response(options);
     }
 
-    async account_base(username) {
+    async account_base() {
         let options = {
             method: 'GET',
-            url: `https://${this.api}3/account/${username}`,
+            url: `https://${this.api}${this.account}/${this.username}`,
             headers: {
                 Authorization: 'Client-ID ' + this.client_id
             }
@@ -224,6 +226,47 @@ class Imgur {
                 Authorization: 'Bearer ' + this.access_token
             }
         };
+        return this.get_response(options);
+    }
+
+    /**
+     * 
+     * @param {Array} ids - optional. the image ids 
+     * @param {Array} deletehashes - optional. the deletehashed of the images
+     * @param {String} title - optional. the title of the album.
+     * @param {String} description - optional. the description of the album
+     * @param {String} privacy - optional. set the privacy level of the album. values are: 'public' | 'hidden' | 'secret'. Defaults to user's privacy settings for logged in users
+     * @param {String} layout - optional.
+     * @param {String} cover - optional. the ID of an image that you want to be the cover of the album 
+     */
+    async create_album(ids = [], deletehashes = [], title = '', description = '', privacy = 'public', layout = '', cover = '') {
+        let formData = {
+            ids,
+            deletehashes
+        };
+        if (title) formData['title'] = title;
+        if (description) formData['description'] = description;
+        if (privacy) formData['privacy'] = privacy;
+        if (cover) formData['cover'] = cover;
+        // client_id || access_token
+        let options = {
+            method: 'POST',
+            url: `https://${this.api}${this.album}`,
+            headers: this.headers
+        }
+        return this.get_response(options);
+    }
+
+    /**
+     * 
+     * @param {number} page - optional 
+     */
+    async get_albums(page = 1) {
+        let options = {
+            method: 'get',
+            url: `https://${this.api}${this.account}/${this.username}/albums/${page}`,
+            headers: this.headers
+        }
         return this.get_response(options);
     }
 }
