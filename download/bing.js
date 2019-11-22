@@ -3,7 +3,8 @@ const {
 } = require("../lib/model");
 const fs = require('fs'),
     path = require('path'),
-    Bagpipe = require('bagpipe');
+    Bagpipe = require('bagpipe'),
+    request = require('request-promise');
 var bagpipe = new Bagpipe(1);
 
 var downloadImage = function (src, dest, callback) {
