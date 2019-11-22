@@ -1,6 +1,6 @@
 const {
     Bing
-} = require("./lib/model");
+} = require("../lib/model");
 const fs = require('fs'),
     path = require('path'),
     Bagpipe = require('bagpipe');
