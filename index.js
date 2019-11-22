@@ -94,7 +94,7 @@ const get_credits = async () => {
 
 // upload_image('https://lh3.googleusercontent.com/WFmjwc3jRmZaRoqcIwFlbjE2p7jcA48kiMAt_6MVakjs9n9cq95S-0BtKT2V983XcEdBDoLsQZYlnhxB24L-cQN_nont2PKUkrMhQb9I0dL4ocBu52e8w8G8kNkBkoRDE-9k2cFVgY1Ov0gppfZDNSl2vvRqYhfyDwG1QwnEiyoYpCa7ni4ip7tTg4O4Q13PztsMiNsC_6GLDwg0Ih9f4Qf-u5jYCH445iYAG9SRn3baZlXsIsvBEfGuxlubpdan5XNXoek7e9lD8FMMy7YZNu2rUUuXulcvjxpJtZjWgvwMK7Ik6ABpPLbAJEI8WpmRqBFA5yKlNw2DPidGYmisw-qiszljHA5CJuXVyHxhqO7kq5l1IOcUDuy1p1nCbq6xJBokElDIpbdvbapGfVHPmQHJUDtHIHk7gJ4JCgNZyNouT7p8iYYjetxO-VsSTiAsUyf8EsoXZPYqXi3nzZvjQVh-9J1mhTwP6dYtTtNnDPQTNfnVZwFUl61kAE9YwX6Oo69bB_ns-LBCo2XvO_Be21buztLRmEGA4N0WsclIwWIeB_JD8gH-O16lKlMMM8yjFv54G9cIBZt92eC21uPtjzXlkvgSREO5qdtXhM9nlXPAUOaDAD0t8YfGSY9Tb8cr5dIgqbNPubC_zRNsuWxsjyC_tSQUQE8nSsJGZBCLFSRp5uva9w5IaQ=w921-h1283-no', 'URL', 'test');
 
-get_credits();
+// get_credits();
 const favorite_image = async (hash) => {
     let result;
     try {
@@ -127,6 +127,7 @@ const account_base = async () => {
     console.log('》》》》》》》', result);
 }
 // account_base();
+
 const get_albums = async () => {
     let result;
     try {
@@ -136,7 +137,8 @@ const get_albums = async () => {
     }
     console.log(result);
 }
-get_albums();
+// get_albums();
+
 const {
     Bing
 } = require("./lib/model");
@@ -148,7 +150,7 @@ const Sequelize = require("sequelize"),
         path = require('path'),
         Bagpipe = require('bagpipe');
 const Op = Sequelize.Op;
-var bagpipe = new Bagpipe(2);
+var bagpipe = new Bagpipe(1);
 
 
 var downloadImage = function (src, dest, callback) {
@@ -163,21 +165,23 @@ var downloadImage = function (src, dest, callback) {
     });
 };
 
-const list = async () => {
-    let page = 1,
-        pagesize = 16;
-    let res = await Bing.findAndCountAll({
-        order: [
-            ['day', 'DESC']
-        ]
+const list = async (page = 1) => {
+    let pagesize = 16;
+    let res = await Bing.findAll({
+        offset: (page - 1) * pagesize,
+        limit: pagesize
     });
-
-    for (let i = 0; i < res['rows'].length; i++) {
-        let bing = res['rows'][i];
-        let imgPath = bing.name.split(' (')[0] + '.jpg';
-        bagpipe.push(downloadImage, bing.url, path.resolve('/home/OneDrive/images/' + imgPath), (err, data) => {
-            console.log(data)
-        });
+    if (res.length) {
+        for (let i = 0; i < res.length; i++) {
+            let bing = res[i];
+            let imgPath = bing.name.split(' (')[0] + '.jpg';
+            bagpipe.push(downloadImage, bing.url, path.resolve('/home/GoogleDrive/bings/' + imgPath.replace(/\//g, '-')), (err, data) => {
+                // bagpipe.push(downloadImage, bing.url, path.join('./bing/' + imgPath.replace(/\//g, '-')), (err, data) => {
+                console.log(data)
+            });
+        }
+        page++;
+        await list(page);
     }
 }
-// list();
+list();
